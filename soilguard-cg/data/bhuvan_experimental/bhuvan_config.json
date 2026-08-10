@@ -1,0 +1,16 @@
+{
+  "project_name": "SoilGuard-SOC ISRO Bhuvan Enrichment Layer",
+  "aoi_bbox": [81.60, 21.10, 81.80, 21.30],
+  "api_keys": {
+    "lulc_aoi": "3ebd37ebb4dd99656aa5aea44c8ebdc7fb39b41e",
+    "lulc_stats": "79cbf4485f5657cc1702f5a9b16fa482bd70c6ea",
+    "village_geocoding": "9dc90e7db7d27e314737c0b379806496060bb782"
+  },
+  "endpoints": {
+    "lulc_aoi_url": "https://bhuvan-app1.nrsc.gov.in/api/lulc/aoi",
+    "lulc_stats_url": "https://bhuvan-app1.nrsc.gov.in/api/lulc/stats",
+    "village_geocoding_url": "https://bhuvan-app1.nrsc.gov.in/api/geocoding/village"
+  },
+  "target_district": "Raipur",
+  "target_state": "Chhattisgarh"
+}

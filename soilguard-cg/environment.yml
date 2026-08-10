@@ -1,0 +1,18 @@
+name: soilguard
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - rasterio
+  - pystac-client
+  - geopandas
+  - shapely
+  - numpy
+  - pandas
+  - scikit-learn
+  - matplotlib
+  - rich
+  - typer
+  - joblib
+  - requests

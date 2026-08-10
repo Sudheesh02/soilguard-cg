@@ -1,0 +1,15 @@
+Metric,Value
+Total AOI Area (ha),46371.78
+Bare Soil Area (ha),22702.47
+Bare Soil Area (%),48.96
+"Low Risk Area (<0.45, ha)",10468.73
+Low Risk Area (%),46.11
+"Moderate Risk Area (0.45-0.58, ha)",7792.74
+Moderate Risk Area (%),34.33
+"High Risk Area (>0.58, ha)",4441.0
+High Risk Area (%),19.56
+Mean Risk Score,0.4902
+Median Risk Score,0.4568
+Std Dev Risk Score,0.1046
+Model Test R2 Score,0.4486
+Model Test RMSE,0.1132

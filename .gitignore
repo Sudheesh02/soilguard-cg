@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Next.js build output
+.next/
+**/.next/
+out/
+**/out/
+tsconfig.tsbuildinfo
+**/tsconfig.tsbuildinfo
+
+# Python artifacts
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Environment & Secrets
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Operating System, IDEs & Local Agent Config
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+.claude/
+*.log
