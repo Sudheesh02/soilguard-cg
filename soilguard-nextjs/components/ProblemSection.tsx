@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState, useRef } from 'react';
 import StatCard from '@/components/StatCard';
+import { DotPattern } from '@/components/ui/DotPattern';
 
 const STATS = [
   {
@@ -96,8 +97,11 @@ export default function ProblemSection() {
   }, [isVisible]);
 
   return (
-    <section id="problem" ref={sectionRef} className="py-16 bg-[#0a0f1a] section-border overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+    <section id="problem" ref={sectionRef} className="py-16 bg-[#0a0f1a] section-border overflow-hidden relative">
+      {/* MagicUI Dot Pattern */}
+      <DotPattern className="[mask-image:radial-gradient(400px_circle_at_center,white,transparent)]" />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* Decorative background glow */}
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[rgba(239,68,68,0.03)] rounded-full blur-[100px] pointer-events-none" />

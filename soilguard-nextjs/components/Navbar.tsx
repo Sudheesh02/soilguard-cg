@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
 import { AnimatedThemeToggler } from '@/components/AnimatedThemeToggler';
 
 const NAV_ITEMS = [
@@ -121,14 +122,12 @@ export default function Navbar() {
           <div className="flex items-center gap-3">
             <AnimatedThemeToggler />
 
-            <a
-              href="http://localhost:3001"
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              href="/dashboard"
               className="badge badge-cyan px-3.5 py-1.5 text-[11px] font-bold flex items-center gap-1.5 hover:bg-[rgba(0,212,255,0.2)] transition-all shadow-lg text-[#00d4ff]"
             >
               <span>Dashboard ↗</span>
-            </a>
+            </Link>
             <button
               onClick={() => setOpen(o => !o)}
               className="md:hidden w-9 h-9 flex items-center justify-center rounded-lg border border-[rgba(255,255,255,0.10)] bg-[rgba(255,255,255,0.04)] text-[#8ba3cc] hover:text-[#e2ecff] hover:bg-[rgba(255,255,255,0.07)] transition-all"

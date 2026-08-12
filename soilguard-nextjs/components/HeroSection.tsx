@@ -4,6 +4,8 @@ import MapCard from '@/components/MapCard';
 import StatCard from '@/components/StatCard';
 import { METRICS } from '@/lib/site-data';
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { AnimatedGridPattern } from '@/components/ui/AnimatedGridPattern';
 
 interface LightboxData { src: string; caption: string; tag: string; }
 interface Props { onOpenLightbox: (d: LightboxData) => void; }
@@ -111,7 +113,6 @@ export default function HeroSection({ onOpenLightbox }: Props) {
         style={{ backgroundImage: 'radial-gradient(rgba(0,212,255,0.08) 1px, transparent 1px)', backgroundSize: '40px 40px' }}
       />
 
-      {/* Ambient orbs with parallax */}
       <div 
         className="pointer-events-none absolute -left-48 top-1/4 w-[600px] h-[600px] rounded-full transition-transform duration-300 ease-out" 
         style={{ 
@@ -120,13 +121,14 @@ export default function HeroSection({ onOpenLightbox }: Props) {
           transform: `translateY(${scrollY * 0.2}px)`
         }} 
       />
-      <div 
-        className="pointer-events-none absolute -right-48 bottom-1/4 w-[500px] h-[500px] rounded-full transition-transform duration-300 ease-out" 
-        style={{ 
-          background: 'radial-gradient(circle, rgba(16,185,129,0.06), transparent 70%)', 
-          filter: 'blur(50px)',
-          transform: `translateY(${scrollY * -0.1}px)`
-        }} 
+
+      {/* MagicUI Animated Grid Pattern */}
+      <AnimatedGridPattern
+        numSquares={35}
+        maxOpacity={0.12}
+        duration={3}
+        repeatDelay={1}
+        className="[mask-image:radial-gradient(600px_circle_at_center,white,transparent)] inset-x-0 inset-y-[-20%] h-[140%] -skew-y-6"
       />
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
@@ -175,10 +177,8 @@ export default function HeroSection({ onOpenLightbox }: Props) {
             </div>
 
             <div className="flex flex-wrap gap-4 stagger-4" style={{ animationDelay: '0.6s' }}>
-              <a
-                href="http://localhost:3001"
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                href="/dashboard"
                 className="btn-primary shimmer"
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -187,7 +187,7 @@ export default function HeroSection({ onOpenLightbox }: Props) {
                   <line x1="10" y1="14" x2="21" y2="3"></line>
                 </svg>
                 Launch Dashboard
-              </a>
+              </Link>
               <button
                 onClick={() => scrollTo('#results')}
                 className="btn-ghost group"

@@ -284,6 +284,12 @@ code, pre, .font-mono {
 /* ═══════════════════════════════════════
    ANIMATIONS & SHIMMER
 ═══════════════════════════════════════ */
+@keyframes pulseSquare {
+  0% { opacity: 0.1; transform: scale(0.95); }
+  50% { opacity: 0.6; transform: scale(1.05); }
+  100% { opacity: 0.1; transform: scale(0.95); }
+}
+
 @keyframes shimmer {
   0% { transform: translateX(-100%); }
   100% { transform: translateX(100%); }
