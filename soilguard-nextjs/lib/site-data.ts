@@ -662,3 +662,8 @@ export const MAPS = [
 
 export const BLOCKS = ['Abhanpur', 'Arang', 'Raipur Rural', 'Dharsiwa', 'Tilda'];
 export const ALL_SECTORS = SECTORS;
+export const TOP_ACTIONS = [
+  { rank: 1, gridId: 'B-1', block: 'Arang', urgency: 'CRITICAL', action: 'Apply 8–10 t/ha FYM or 3 t/ha Biochar + Lime @ 2.5 t/ha' },
+  { rank: 2, gridId: 'A-1', block: 'Abhanpur', urgency: 'CRITICAL', action: 'Green manuring: Dhaincha pre-Kharif + Deep tillage' },
+  { rank: 3, gridId: 'B-2', block: 'Arang', urgency: 'MODERATE', action: 'Residue retention + Crop rotation with legumes' },
+];
