@@ -21,7 +21,10 @@ export const STATS = {
   moderateSectors: 15,
   stableSectors: 8,
   runtimeSec: METRICS.runtimeSec,
+  processingTimeSec: METRICS.runtimeSec,
   bareSoilHa: METRICS.bareSoilHa,
+  totalBareHa: METRICS.bareSoilHa,
+  resolution: '10m',
 };
 
 export type { Sector, Urgency, Tier } from './site-data';
