@@ -58,7 +58,7 @@ export default function RecommendationsPage() {
               {group.label}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-              {group.sectors.map(s => {
+              {group.sectors.map((s: any) => {
                 const c = urgencyColor(s.urgency);
                 return (
                   <div key={s.rank} className="card p-5 hover:scale-[1.01] transition-transform duration-150"
