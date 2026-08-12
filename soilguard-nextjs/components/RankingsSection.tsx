@@ -100,7 +100,7 @@ export default function RankingsSection() {
                 {visible.map((s, index) => {
                   const uc = urgencyColor(s.urgency);
                   const isExpanded = expanded === s.rank;
-                  const actions = TOP_ACTIONS[s.name];
+                  const actions = (TOP_ACTIONS as any)?.[s.name] || (TOP_ACTIONS as any)?.[s.rank] || [];
                   
                   // For background bar
                   const riskPercent = (s.risk / 0.8) * 100; // max risk approx 0.8
