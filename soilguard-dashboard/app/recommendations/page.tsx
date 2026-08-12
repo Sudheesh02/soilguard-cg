@@ -1,6 +1,7 @@
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import Topbar from '@/components/layout/Topbar';
 import { SECTORS, urgencyColor } from '@/lib/data';
+import { TIER_COLORS } from '@/lib/theme';
 import Badge from '@/components/ui/Badge';
 
 export default function RecommendationsPage() {
@@ -16,12 +17,12 @@ export default function RecommendationsPage() {
         {/* Global packages reference */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {[
-            { tier: 'CRITICAL', color: '#ef4444', label: 'Tier 1 — Immediate Action', count: critical.length,
-              actions: ['8–10 t/ha FYM / 3 t/ha Biochar', 'Agricultural Lime @ 2.5 t/ha', 'Green manuring: Dhaincha/Sunnhemp', 'INM: 75% RDF + 25% organic'] },
-            { tier: 'MODERATE', color: '#f59e0b', label: 'Tier 2 — Seasonal Action', count: moderate.length,
-              actions: ['3–5 t/ha FYM or vermicompost', 'Zero-tillage + straw mulching', 'Crop rotation with legumes', 'Balanced NPK + ZnSO4'] },
-            { tier: 'STABLE',   color: '#10b981', label: 'Tier 3 — Preventive Care', count: stable.length,
-              actions: ['1.5–2 t/ha compost maintenance', 'Soil test-based fertilisation', 'Crop residue incorporation', 'Biodiversity monitoring'] },
+            { tier: 'CRITICAL', color: TIER_COLORS[1], label: 'Tier 1: Immediate Action', count: critical.length,
+              actions: ['8-10 t/ha FYM / 3 t/ha Biochar', 'Agricultural Lime @ 2.5 t/ha', 'Green manuring: Dhaincha/Sunnhemp', 'INM: 75% RDF + 25% organic'] },
+            { tier: 'MODERATE', color: TIER_COLORS[2], label: 'Tier 2: Seasonal Action', count: moderate.length,
+              actions: ['3-5 t/ha FYM or vermicompost', 'Zero-tillage + straw mulching', 'Crop rotation with legumes', 'Balanced NPK + ZnSO4'] },
+            { tier: 'STABLE',   color: TIER_COLORS[3], label: 'Tier 3: Preventive Care', count: stable.length,
+              actions: ['1.5-2 t/ha compost maintenance', 'Soil test-based fertilisation', 'Crop residue incorporation', 'Biodiversity monitoring'] },
           ].map(g => (
             <div key={g.tier} className="card p-5"
               style={{ boxShadow: `0 0 20px ${g.color}15` }}>
@@ -45,11 +46,11 @@ export default function RecommendationsPage() {
           ))}
         </div>
 
-        {/* Per-sector cards — critical first */}
+        {/* Per-sector cards: critical first */}
         {[
-          { label: 'Critical Sectors — Immediate Intervention Required', sectors: critical, color: '#ef4444' },
-          { label: 'Moderate Sectors — Seasonal Action Required', sectors: moderate, color: '#f59e0b' },
-          { label: 'Stable Sectors — Preventive Monitoring', sectors: stable, color: '#10b981' },
+          { label: 'Critical Sectors: Immediate Intervention Required', sectors: critical, color: TIER_COLORS[1] },
+          { label: 'Moderate Sectors: Seasonal Action Required', sectors: moderate, color: TIER_COLORS[2] },
+          { label: 'Stable Sectors: Preventive Monitoring', sectors: stable, color: TIER_COLORS[3] },
         ].map(group => (
           <section key={group.label}>
             <h2 className="font-display font-bold text-white text-[16px] mb-4 flex items-center gap-3">

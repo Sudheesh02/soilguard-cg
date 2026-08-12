@@ -1,6 +1,8 @@
 'use client';
 import { useState, useEffect } from 'react';
 
+import { METRICS } from '@/lib/site-data';
+
 const LINES = [
   { delay: 0,    color: '#00d4ff', text: '# SoilGuard-SOC — Single Offline Demo Entry Point', type: 'comment' },
   { delay: 400,  color: '#e2ecff', text: '$ python soilguard-cg/src/run_full_demo.py', type: 'cmd', bold: true },
@@ -24,7 +26,7 @@ const LINES = [
   { delay: 2900, color: '#4a6890', text: '    Features : swir1 · nir · red · blue · bsi · ndvi · 3 ratios (9 total)', type: 'dim' },
   { delay: 3000, color: '#4a6890', text: '    Target   : y = 0.60×(1−SOC_norm) + 0.40×BSI_norm', type: 'dim' },
   { delay: 3100, color: '#4a6890', text: '    Leakage  : Raw SOC EXCLUDED from feature matrix X ✓', type: 'dim' },
-  { delay: 3250, color: '#10b981', text: '    ✓ RF Model Trained | Test R²: 0.4481 | Test RMSE: 0.0940', type: 'ok', bold: true },
+  { delay: 3250, color: '#10b981', text: `    ✓ RF Model Trained | Test R²: ${METRICS.r2.toFixed(4)} | Test RMSE: ${METRICS.rmse.toFixed(4)}`, type: 'ok', bold: true },
   { delay: 3400, color: '#10b981', text: '    ✓ Maps saved: risk_score_map.png (SOC Def Map) · model_confidence.png', type: 'ok' },
   { delay: 3550, color: '#e2ecff', text: '', type: 'gap' },
   { delay: 3600, color: '#00d4ff', text: '📊  [Phase 4/4] Zonal Analytics, Regenerative Packages & Report...', type: 'phase' },
@@ -35,7 +37,7 @@ const LINES = [
   { delay: 4200, color: '#10b981', text: '    ✓ Report: SoilGuard_SOC_Executive_Summary.md', type: 'ok' },
   { delay: 4350, color: '#e2ecff', text: '', type: 'gap' },
   { delay: 4400, color: '#8ba3cc', text: '╭─────────── SoilGuard-SOC Execution Summary ─────────────╮', type: 'box' },
-  { delay: 4500, color: '#e2ecff', text: '│  ✓ Full Pipeline Completed in  41.03  seconds            │', type: 'box', bold: true },
+  { delay: 4500, color: '#e2ecff', text: `│  ✓ Full Pipeline Completed in  ${METRICS.runtimeSec.toFixed(2)}  seconds            │`, type: 'box', bold: true },
   { delay: 4600, color: '#8ba3cc', text: '│  • SOC Def Score Map   → outputs/phase3/risk_score_map.png │', type: 'box' },
   { delay: 4700, color: '#8ba3cc', text: '│  • Zonal SOC Priority  → outputs/phase4/zonal_risk_map.png │', type: 'box' },
   { delay: 4800, color: '#8ba3cc', text: '│  • Confidence Map      → outputs/phase4/model_confidence.png│', type: 'box' },
@@ -51,12 +53,21 @@ export default function TerminalSection() {
   const runDemo = () => {
     setRunning(true);
     setVisibleCount(0);
+    
+    // Natural typing effect with variable delays
+    let currentDelay = 0;
     LINES.forEach((line, i) => {
+      // Add random jitter to delay (0-150ms) for more realism, except first line
+      const jitter = i === 0 ? 0 : Math.random() * 150 + 50;
+      currentDelay += (line.delay - (i > 0 ? LINES[i-1].delay : 0)) + jitter;
+      
       setTimeout(() => {
         setVisibleCount(i + 1);
-      }, line.delay);
+        if (i === LINES.length - 1) {
+          setTimeout(() => setRunning(false), 500);
+        }
+      }, currentDelay);
     });
-    setTimeout(() => setRunning(false), 5200);
   };
 
   const copy = () => {
@@ -67,19 +78,19 @@ export default function TerminalSection() {
   };
 
   return (
-    <section id="terminal" className="py-24 bg-[#06090f] section-border">
+    <section id="terminal" className="py-16 bg-[#06090f] section-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
           <div className="max-w-2xl">
-            <p className="eyebrow eyebrow-emerald mb-4">Terminal-Native Reproducibility</p>
+            <p className="eyebrow eyebrow-emerald mb-3">Terminal-Native Reproducibility</p>
             <h2 className="section-title mb-4">
               Single Command.<br className="hidden md:block"/>
               <span className="text-[#10b981]"> Full Pipeline. Offline.</span>
             </h2>
             <p className="section-body">
-              The entire SoilGuard-CG pipeline — data loading, spectral index computation, ML training, risk mapping, zonal analytics, and executive report generation — executes from a single terminal command in ~41 seconds with zero internet connectivity.
+              The entire SoilGuard-CG pipeline (data loading, spectral index computation, ML training, risk mapping, zonal analytics, and executive report generation) executes from a single terminal command in ~41 seconds with zero internet connectivity.
             </p>
           </div>
 
@@ -111,8 +122,14 @@ export default function TerminalSection() {
           </div>
         </div>
 
-        {/* Terminal window */}
-        <div className="terminal-window">
+        {/* Terminal window with reflection */}
+        <div className="relative group perspective-[1000px]">
+          <div className="terminal-window relative z-10 overflow-hidden transform transition-transform duration-700 hover:rotate-x-2">
+            {/* CRT Scanlines */}
+            <div className="absolute inset-0 pointer-events-none opacity-[0.03] z-50 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,3px_100%]" />
+            {/* Screen Glare */}
+            <div className="absolute top-0 left-[-100%] w-[50%] h-[150%] bg-gradient-to-r from-transparent via-[rgba(255,255,255,0.05)] to-transparent transform rotate-45 pointer-events-none -translate-y-1/4 group-hover:animate-[shimmer_3s_ease-out_forwards]" />
+
 
           {/* Title bar */}
           <div className="terminal-bar justify-between">
@@ -137,16 +154,17 @@ export default function TerminalSection() {
             {(visibleCount === 0 ? LINES.slice(0, 2) : LINES.slice(0, visibleCount)).map((line, i) => (
               <div
                 key={i}
-                className="leading-[1.9]"
+                className="leading-[1.9] flex items-start"
                 style={{
                   color: line.color,
                   fontWeight: line.bold ? 700 : 400,
                   opacity: visibleCount === 0 && i > 0 ? 0.4 : 1,
+                  textShadow: visibleCount > 0 ? `0 0 8px ${line.color}40` : 'none',
                 }}
               >
-                {line.text || <span>&nbsp;</span>}
+                <span>{line.text || <span>&nbsp;</span>}</span>
                 {i === (visibleCount === 0 ? 1 : visibleCount - 1) && (
-                  <span className="animate-blink ml-0.5">▋</span>
+                  <span className="inline-block w-2 h-4 ml-1.5 align-middle bg-current animate-pulse opacity-80" style={{ boxShadow: `0 0 10px ${line.color}` }} />
                 )}
               </div>
             ))}
@@ -154,7 +172,7 @@ export default function TerminalSection() {
 
           {/* Footer */}
           <div
-            className="px-6 py-3 flex items-center justify-between border-t"
+            className="px-6 py-3 flex items-center justify-between border-t relative z-10"
             style={{ borderColor: 'rgba(255,255,255,0.06)', background: '#080d18' }}
           >
             <div className="font-mono text-[11px] text-[#4a6890] flex items-center gap-4">
@@ -166,6 +184,11 @@ export default function TerminalSection() {
             </span>
           </div>
         </div>
+        
+        {/* Floor reflection */}
+        <div className="absolute left-1/2 -translate-x-1/2 bottom-[-40px] w-[90%] h-[60px] bg-gradient-to-t from-transparent to-[#10b981] opacity-10 blur-2xl pointer-events-none" />
+        <div className="absolute left-[10%] right-[10%] bottom-[-20px] h-[20px] bg-black opacity-40 blur-xl rounded-[100%] pointer-events-none" />
+      </div>
 
         {/* Quick start commands */}
         <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">

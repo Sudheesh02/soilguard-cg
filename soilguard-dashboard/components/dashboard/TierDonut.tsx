@@ -1,11 +1,12 @@
 'use client';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import { STATS } from '@/lib/data';
+import { TIER_COLORS } from '@/lib/theme';
 
 const DATA = [
-  { name: 'Critical', value: STATS.criticalCount, color: '#ef4444' },
-  { name: 'Moderate', value: STATS.moderateCount, color: '#f59e0b' },
-  { name: 'Stable',   value: STATS.stableCount,   color: '#10b981' },
+  { name: 'Critical', value: STATS.criticalCount, color: TIER_COLORS[1] },
+  { name: 'Moderate', value: STATS.moderateCount, color: TIER_COLORS[2] },
+  { name: 'Stable',   value: STATS.stableCount,   color: TIER_COLORS[3] },
 ];
 
 function CustomTooltip({ active, payload }: any) {
@@ -49,7 +50,7 @@ export default function TierDonut() {
             </div>
           ))}
           <div className="pt-2 border-t border-white/[0.06]">
-            <p className="text-[10px] text-[#3d5a80] font-mono-data">RF Model · 87.3% R² · 41s runtime</p>
+            <p className="text-[10px] text-[#3d5a80] font-mono-data">RF Model · R² {STATS.r2.toFixed(4)} · {STATS.processingTimeSec}s runtime</p>
           </div>
         </div>
       </div>

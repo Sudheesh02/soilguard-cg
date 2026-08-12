@@ -6,7 +6,6 @@ for the Raipur/Durg agricultural belt in Chhattisgarh.
 
 import os
 import io
-import sys
 import requests
 import numpy as np
 import rasterio
@@ -14,10 +13,7 @@ from rasterio.windows import from_bounds
 from rasterio.warp import transform_bounds, reproject, Resampling
 from pystac_client import Client
 
-# Base Paths
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
-GOLDEN_DIR = os.path.join(PROJECT_ROOT, "data", "golden")
+from config import GOLDEN_DIR
 
 # Default & Fallback AOIs (WGS84 Bounding Box: [min_lon, min_lat, max_lon, max_lat])
 AOI_RAIPUR = [81.60, 21.10, 81.80, 21.30]  # Raipur / Abhanpur / Arang

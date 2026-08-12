@@ -1,5 +1,5 @@
 import { urgencyColor, type Urgency } from '@/lib/data';
-import clsx from 'clsx';
+import { TIER_NAMES, type Tier } from '@/lib/theme';
 
 export default function Badge({ urgency }: { urgency: Urgency }) {
   const c = urgencyColor(urgency);
@@ -14,7 +14,6 @@ export default function Badge({ urgency }: { urgency: Urgency }) {
   );
 }
 
-export function TierBadge({ tier }: { tier: 1 | 2 | 3 }) {
-  const map = { 1: 'CRITICAL', 2: 'MODERATE', 3: 'STABLE' } as const;
-  return <Badge urgency={map[tier]} />;
+export function TierBadge({ tier }: { tier: Tier }) {
+  return <Badge urgency={TIER_NAMES[tier]} />;
 }

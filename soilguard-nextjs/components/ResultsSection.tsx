@@ -1,96 +1,45 @@
 'use client';
 import { useState } from 'react';
 
+import MapCard from '@/components/MapCard';
+import StatCard from '@/components/StatCard';
+import { MAPS as MAP_CATALOG, METRICS, ALL_SECTORS } from '@/lib/site-data';
+
 interface LightboxData { src: string; caption: string; tag: string; }
 interface Props { onOpenLightbox: (d: LightboxData) => void; }
 
-const MAPS = [
-  {
-    key: 'risk',
-    src: '/assets/images/risk_score_map.png',
-    title: 'SOC Deficiency Score Map',
-    subtitle: '10m resolution · Sentinel-2 spectral features',
-    tag: 'PHASE 3',
-    badge: 'badge-red',
-    badgeText: 'PRIMARY LAYER',
-    caption: 'Soil Organic Carbon (SOC) Deficiency Map — Raipur–Durg Belt (10m Resolution, Sentinel-2 L2A)',
-    crs: 'EPSG:32644',
-    stats: 'Mean SOC Def: 0.489 · RMSE: 0.0929',
-  },
-  {
-    key: 'zonal',
-    src: '/assets/images/zonal_risk_map.png',
-    title: 'Zonal Organic Carbon Priority Map',
-    subtitle: '5×5 regular grid · 25 agricultural sectors',
-    tag: 'PHASE 4',
-    badge: 'badge-amber',
-    badgeText: 'ZONAL GRID',
-    caption: 'Zonal Organic Carbon Priority Sector Map — 5×5 Grid (Raipur–Durg Rice Belt)',
-    crs: 'EPSG:32644',
-    stats: 'Top sector: Arang B-1 · SOC Def: 0.6143',
-  },
-  {
-    key: 'confidence',
-    src: '/assets/images/model_confidence_map.png',
-    title: 'Model Ensemble Confidence Map',
-    subtitle: 'Prediction uncertainty · Ensemble spread',
-    tag: 'PHASE 4',
-    badge: 'badge-violet',
-    badgeText: 'CONFIDENCE',
-    caption: 'Model Ensemble Confidence / Uncertainty Map',
-    crs: 'EPSG:32644',
-    stats: 'Ensemble trees: 150 · OOB uncertainty',
-  },
-  {
-    key: 'bsi',
-    src: '/assets/images/bsi_map.png',
-    title: 'Bare Soil Index (BSI) Map',
-    subtitle: 'Topsoil exposure · NDVI ≤ 0.30 masked',
-    tag: 'PHASE 2',
-    badge: 'badge-amber',
-    badgeText: 'SPECTRAL',
-    caption: 'Bare Soil Index (BSI) Map — Raipur AOI',
-    crs: 'EPSG:32644',
-    stats: 'Bare area: 22,702 ha (48.96%)',
-  },
-  {
-    key: 'ndvi',
-    src: '/assets/images/ndvi_map.png',
-    title: 'NDVI Vegetation Map',
-    subtitle: 'Normalized Difference Vegetation Index',
-    tag: 'PHASE 2',
-    badge: 'badge-emerald',
-    badgeText: 'VEGETATION',
-    caption: 'NDVI Vegetation Index Map — Raipur AOI',
-    crs: 'EPSG:32644',
-    stats: 'Threshold: NDVI ≤ 0.30 for bare soil',
-  },
-  {
-    key: 'falsecolor',
-    src: '/assets/images/false_color_composite.png',
-    title: 'False Color Composite',
-    subtitle: 'NIR-Red-Green · Vegetation and bare soil',
-    tag: 'PHASE 2',
-    badge: 'badge-cyan',
-    badgeText: 'FALSE COLOR',
-    caption: 'Sentinel-2 False Color Composite (NIR-R-G)',
-    crs: 'EPSG:32644',
-    stats: 'B08/B04/B03 composite',
-  },
-];
+const fmtHa = (v: number) => v.toLocaleString('en-IN', { maximumFractionDigits: 0 });
+const imgSrc = (m: { file: string }) => `/assets/images/${m.file}`;
+
+// Captions derived from the canonical metrics (shared/metrics.json)
+const METRIC_STATS: Record<string, string> = {
+  risk: `Mean SOC Def: ${METRICS.meanRisk.toFixed(3)} · RMSE: ${METRICS.rmse.toFixed(4)}`,
+  zonal: `Top sector: ${ALL_SECTORS[0].name} · SOC Def: ${ALL_SECTORS[0].risk.toFixed(4)}`,
+  bsi: `Bare area: ${fmtHa(METRICS.bareSoilHa)} ha (${METRICS.bareSoilPct}%)`,
+};
 
 const RISK_BREAKDOWN = [
-  { label: 'Low Risk',      range: '< 0.45',      ha: '9,405', pct: 41.43, color: '#10b981', bg: 'rgba(16,185,129,0.14)', border: 'rgba(16,185,129,0.3)' },
-  { label: 'Moderate Risk', range: '0.45 – 0.58', ha: '9,226', pct: 40.64, color: '#f59e0b', bg: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.28)' },
-  { label: 'High Risk',     range: '> 0.58',      ha: '4,071', pct: 17.93, color: '#ef4444', bg: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.28)' },
+  { label: 'Low Risk',      range: `< ${METRICS.lowCutoff}`,      ha: fmtHa(METRICS.lowRiskHa),      pct: METRICS.lowRiskPct,      color: '#10b981', bg: 'rgba(16,185,129,0.14)', border: 'rgba(16,185,129,0.3)' },
+  { label: 'Moderate Risk', range: `${METRICS.lowCutoff} – ${METRICS.highCutoff}`, ha: fmtHa(METRICS.moderateRiskHa), pct: METRICS.moderateRiskPct, color: '#f59e0b', bg: 'rgba(245,158,11,0.12)', border: 'rgba(245,158,11,0.28)' },
+  { label: 'High Risk',     range: `> ${METRICS.highCutoff}`,      ha: fmtHa(METRICS.highRiskHa),      pct: METRICS.highRiskPct,      color: '#ef4444', bg: 'rgba(239,68,68,0.12)', border: 'rgba(239,68,68,0.28)' },
+];
+
+const SUMMARY_STATS = [
+  { label: 'Total AOI Area',    value: `${fmtHa(METRICS.totalAoiHa)} ha`, color: '#8ba3cc' },
+  { label: 'Bare Soil Area',    value: `${fmtHa(METRICS.bareSoilHa)} ha`, color: '#00d4ff' },
+  { label: 'Mean Risk Score',   value: METRICS.meanRisk.toFixed(3),       color: '#f59e0b' },
+  { label: 'Median Risk Score', value: METRICS.medianRisk.toFixed(3),     color: '#f59e0b' },
+  { label: 'Risk Std Deviation', value: METRICS.stdRisk.toFixed(3),       color: '#8ba3cc' },
+  { label: 'Model Test R²',     value: METRICS.r2.toFixed(4),             color: '#10b981' },
+  { label: 'Model Test RMSE',   value: METRICS.rmse.toFixed(4),           color: '#10b981' },
 ];
 
 export default function ResultsSection({ onOpenLightbox }: Props) {
   const [active, setActive] = useState('risk');
-  const current = MAPS.find(m => m.key === active)!;
+  const current = MAP_CATALOG.find(m => m.id === active)!;
 
   return (
-    <section id="results" className="py-24 bg-[#0a0f1a] section-border">
+    <section id="results" className="py-16 bg-[#0a0f1a] section-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Header */}
@@ -112,12 +61,12 @@ export default function ResultsSection({ onOpenLightbox }: Props) {
 
             {/* Layer selector */}
             <div className="flex flex-wrap gap-2">
-              {MAPS.map(m => (
+              {MAP_CATALOG.map(m => (
                 <button
-                  key={m.key}
-                  onClick={() => setActive(m.key)}
+                  key={m.id}
+                  onClick={() => setActive(m.id)}
                   className={`px-4 py-2 rounded-xl font-mono text-[11px] font-semibold border transition-all duration-200 ${
-                    active === m.key
+                    active === m.id
                       ? 'bg-[rgba(0,212,255,0.12)] border-[rgba(0,212,255,0.28)] text-[#00d4ff] shadow-[0_0_16px_rgba(0,212,255,0.15)]'
                       : 'bg-[rgba(255,255,255,0.03)] border-[rgba(255,255,255,0.09)] text-[#8ba3cc] hover:bg-[rgba(255,255,255,0.06)] hover:border-[rgba(255,255,255,0.14)] hover:text-[#e2ecff]'
                   }`}
@@ -128,47 +77,14 @@ export default function ResultsSection({ onOpenLightbox }: Props) {
             </div>
 
             {/* Map card */}
-            <div
-              className="map-card group"
-              onClick={() => onOpenLightbox({ src: current.src, caption: current.caption, tag: current.crs })}
-              role="button"
-              tabIndex={0}
-              aria-label={`View full resolution ${current.title}`}
-            >
-              <img
-                src={current.src}
-                alt={current.title}
-                className="w-full aspect-[4/3] object-cover"
-              />
-              <div className="map-overlay" />
-
-              {/* Badges */}
-              <div className="absolute top-4 left-4 flex items-center gap-1.5 glass px-3 py-1.5">
-                <span className="live-dot" />
-                <span className="font-mono text-[10px] text-[#10b981] font-semibold">SENTINEL-2 L2A</span>
-              </div>
-              <span className={`absolute top-4 right-4 badge ${current.badge}`}>{current.badgeText}</span>
-
-              {/* Bottom info */}
-              <div className="absolute bottom-4 left-4 right-4">
-                <div className="glass px-4 py-3">
-                  <p className="eyebrow mb-1">{current.stats}</p>
-                  <p style={{ fontFamily: "'Space Grotesk', sans-serif" }} className="text-[13.5px] font-bold text-[#e2ecff]">
-                    {current.title}
-                  </p>
-                </div>
-              </div>
-
-              {/* Expand hint */}
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <div className="glass px-4 py-2 flex items-center gap-2">
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                    <path d="M1 1h4M1 1v4M13 13h-4M13 13v-4M1 13h4M1 13v-4M13 1h-4M13 1v4" stroke="#00d4ff" strokeWidth="1.5" strokeLinecap="round"/>
-                  </svg>
-                  <span className="text-[11px] font-mono text-[#00d4ff] font-semibold">CLICK TO EXPAND</span>
-                </div>
-              </div>
-            </div>
+            <MapCard
+              src={imgSrc(current)}
+              alt={current.title}
+              bottomEyebrow={METRIC_STATS[current.id] ?? current.stats}
+              bottomTitle={current.title}
+              topRight={<span className={`badge ${current.badge}`}>{current.badgeText}</span>}
+              onClick={() => onOpenLightbox({ src: imgSrc(current), caption: current.caption, tag: current.crs })}
+            />
 
             <p className="text-[12px] text-[#4a6890] font-mono px-1">
               {current.subtitle} · Projection: {current.crs} (UTM Zone 44N)
@@ -179,79 +95,74 @@ export default function ResultsSection({ onOpenLightbox }: Props) {
           <div className="lg:col-span-4 space-y-4">
 
             {/* Risk breakdown */}
-            <div
-              className="rounded-2xl p-6"
-              style={{ background: '#0e1522', border: '1px solid rgba(255,255,255,0.08)' }}
-            >
-              <p className="eyebrow mb-5">Risk Area Breakdown</p>
-              <div className="space-y-5">
-                {RISK_BREAKDOWN.map(r => (
-                  <div key={r.label}>
-                    <div className="flex justify-between items-center mb-2">
-                      <div>
-                        <span className="text-[13px] font-semibold" style={{ color: r.color }}>{r.label}</span>
-                        <span className="text-[11px] text-[#4a6890] font-mono ml-2">{r.range}</span>
+            <StatCard className="p-7 relative overflow-hidden" background="#0e1522" border="1px solid rgba(255,255,255,0.08)">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-[rgba(255,255,255,0.02)] rounded-bl-full pointer-events-none" />
+              <p className="eyebrow mb-6">Risk Area Breakdown</p>
+              <div className="space-y-6">
+                {RISK_BREAKDOWN.map((r, i) => {
+                  const strokeDasharray = 2 * Math.PI * 18;
+                  const strokeDashoffset = strokeDasharray - (r.pct / 100) * strokeDasharray;
+                  
+                  return (
+                    <div key={r.label} className="flex items-center gap-4 group">
+                      <div className="relative w-12 h-12 shrink-0">
+                        <svg className="w-12 h-12 transform -rotate-90">
+                          <circle cx="24" cy="24" r="18" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="4" />
+                          <circle 
+                            cx="24" cy="24" r="18" fill="none" stroke={r.color} strokeWidth="4"
+                            strokeDasharray={strokeDasharray}
+                            strokeDashoffset={strokeDashoffset}
+                            strokeLinecap="round"
+                            className="transition-all duration-1000 ease-out group-hover:filter group-hover:drop-shadow-[0_0_8px_currentColor]"
+                            style={{ color: r.color }}
+                          />
+                        </svg>
+                        <div className="absolute inset-0 flex items-center justify-center font-mono text-[9px] font-bold" style={{ color: r.color }}>
+                          {r.pct.toFixed(0)}%
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <span className="font-mono text-[13px] font-bold text-[#e2ecff]">{r.ha}</span>
-                        <span className="text-[11px] text-[#4a6890] font-mono ml-1">ha</span>
+                      
+                      <div className="flex-1">
+                        <div className="flex justify-between items-center mb-1">
+                          <span className="text-[14px] font-semibold tracking-tight group-hover:text-white transition-colors" style={{ color: r.color }}>{r.label}</span>
+                          <span className="font-mono text-[14px] font-bold text-[#e2ecff]">{r.ha}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-[11px] text-[#4a6890] font-mono">{r.range}</span>
+                          <span className="text-[11px] text-[#4a6890] font-mono">ha</span>
+                        </div>
                       </div>
                     </div>
-                    <div className="progress-track">
-                      <div
-                        className="progress-fill"
-                        style={{
-                          width: `${r.pct}%`,
-                          background: `linear-gradient(90deg, ${r.color}, ${r.color}99)`,
-                        }}
-                      />
-                    </div>
-                    <div className="text-right mt-1">
-                      <span className="font-mono text-[11px]" style={{ color: r.color }}>{r.pct.toFixed(1)}%</span>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
-            </div>
+            </StatCard>
 
             {/* Summary stats */}
-            <div
-              className="rounded-2xl p-6"
-              style={{ background: '#0e1522', border: '1px solid rgba(255,255,255,0.08)' }}
-            >
+            <StatCard className="p-6" background="#0e1522" border="1px solid rgba(255,255,255,0.08)">
               <p className="eyebrow mb-4">AOI Summary Statistics</p>
               <div className="space-y-3">
-                {[
-                  { label: 'Total AOI Area',    value: '46,372 ha',  color: '#8ba3cc' },
-                  { label: 'Bare Soil Area',     value: '22,702 ha',  color: '#00d4ff' },
-                  { label: 'Mean Risk Score',    value: '0.489',      color: '#f59e0b' },
-                  { label: 'Median Risk Score',  value: '0.466',      color: '#f59e0b' },
-                  { label: 'Risk Std Deviation', value: '0.086',      color: '#8ba3cc' },
-                  { label: 'Model Test R²',      value: '0.4568',     color: '#10b981' },
-                  { label: 'Model Test RMSE',    value: '0.0929',     color: '#10b981' },
-                ].map(stat => (
+                {SUMMARY_STATS.map(stat => (
                   <div key={stat.label} className="flex justify-between items-center py-2 border-b border-[rgba(255,255,255,0.04)] last:border-none">
                     <span className="text-[12px] text-[#4a6890]">{stat.label}</span>
                     <span className="font-mono text-[12.5px] font-bold" style={{ color: stat.color }}>{stat.value}</span>
                   </div>
                 ))}
               </div>
-            </div>
+            </StatCard>
 
             {/* Histogram */}
-            <div
-              className="rounded-2xl overflow-hidden"
-              style={{ border: '1px solid rgba(255,255,255,0.08)' }}
-            >
+            <StatCard className="overflow-hidden" background="#0e1522" border="1px solid rgba(255,255,255,0.08)">
               <div className="bg-[#0a0f1a] px-4 py-3 border-b border-[rgba(255,255,255,0.06)]">
                 <p className="eyebrow text-[9.5px]">Risk Score Distribution Histogram</p>
               </div>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/assets/images/risk_histogram.png"
                 alt="Risk Score Distribution"
                 className="w-full bg-[#06090f]"
               />
-            </div>
+            </StatCard>
 
           </div>
         </div>

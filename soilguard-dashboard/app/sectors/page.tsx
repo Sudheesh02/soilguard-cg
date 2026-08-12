@@ -1,9 +1,10 @@
 'use client';
-import { useState } from 'react';
+import { useState, Fragment } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import Topbar from '@/components/layout/Topbar';
 import Badge from '@/components/ui/Badge';
 import { SECTORS, urgencyColor, type Urgency } from '@/lib/data';
+import { TIER_COLORS } from '@/lib/theme';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 
 type Filter = 'all' | 'critical' | 'moderate' | 'stable';
@@ -35,7 +36,7 @@ export default function SectorsPage() {
         <div className="flex flex-wrap gap-2 mb-6">
           {FILTERS.map(f => {
             const active = filter === f.key;
-            const col = f.key === 'critical' ? '#ef4444' : f.key === 'moderate' ? '#f59e0b' : f.key === 'stable' ? '#10b981' : '#00d4ff';
+            const col = f.key === 'critical' ? TIER_COLORS[1] : f.key === 'moderate' ? TIER_COLORS[2] : f.key === 'stable' ? TIER_COLORS[3] : '#00d4ff';
             return (
               <button key={f.key} onClick={() => { setFilter(f.key); setExpanded(null); }}
                 className="flex items-center gap-2 px-4 py-2 rounded-xl font-mono-data text-[11px] font-semibold border transition-all"
@@ -69,8 +70,8 @@ export default function SectorsPage() {
                   const c = urgencyColor(s.urgency);
                   const open = expanded === s.rank;
                   return (
-                    <>
-                      <tr key={s.rank}
+                    <Fragment key={s.rank}>
+                      <tr
                         onClick={() => setExpanded(open ? null : s.rank)}
                         className="border-b border-white/[0.04] hover:bg-white/[0.03] cursor-pointer transition-colors">
                         <td className="px-4 py-3">
@@ -120,7 +121,7 @@ export default function SectorsPage() {
                           </td>
                         </tr>
                       )}
-                    </>
+                    </Fragment>
                   );
                 })}
               </tbody>

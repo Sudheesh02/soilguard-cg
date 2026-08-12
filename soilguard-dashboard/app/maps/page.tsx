@@ -2,13 +2,8 @@
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import Topbar from '@/components/layout/Topbar';
 import { MAPS } from '@/lib/data';
+import { PHASE_COLORS } from '@/lib/theme';
 import { Image as ImageIcon, Info } from 'lucide-react';
-
-const PHASE_COLOR: Record<string, string> = {
-  'Phase 2': '#00d4ff',
-  'Phase 3': '#f59e0b',
-  'Phase 4': '#10b981',
-};
 
 export default function MapsPage() {
   return (
@@ -26,7 +21,7 @@ export default function MapsPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
           {MAPS.map(m => {
-            const phaseColor = PHASE_COLOR[m.phase] ?? '#818cf8';
+            const phaseColor = PHASE_COLORS[m.phase] ?? '#818cf8';
             return (
               <div key={m.id} className="card overflow-hidden group hover:scale-[1.01] transition-transform duration-200"
                 style={{ boxShadow: `0 4px 24px rgba(0,0,0,0.3)` }}>

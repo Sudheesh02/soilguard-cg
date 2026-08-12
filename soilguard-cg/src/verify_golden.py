@@ -9,11 +9,9 @@ import numpy as np
 from rich.console import Console
 from rich.table import Table
 
-console = Console()
+from config import GOLDEN_DIR
 
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
-GOLDEN_DIR = os.path.join(PROJECT_ROOT, "data", "golden")
+console = Console()
 
 def verify_dataset(filepath, name):
     if not os.path.exists(filepath):

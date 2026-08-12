@@ -4,12 +4,11 @@ Computes NDVI, Bare Soil Index (BSI), and applies soil-selective masking.
 """
 
 import os
+
 import rasterio
 import numpy as np
 
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
-GOLDEN_S2_PATH = os.path.join(PROJECT_ROOT, "data", "golden", "sentinel2_raipur_golden.tif")
+from config import GOLDEN_S2_PATH
 
 def load_sentinel2_stack(filepath=GOLDEN_S2_PATH):
     """

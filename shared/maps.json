@@ -1,0 +1,93 @@
+[
+  {
+    "id": "risk",
+    "title": "SOC Risk Score Map",
+    "desc": "Mean SOC Deficiency Index per pixel (0–1 scale). Red zones indicate critical bare soil carbon depletion.",
+    "phase": "Phase 3",
+    "file": "risk_score_map.png",
+    "subtitle": "10m resolution · Sentinel-2 spectral features",
+    "badge": "badge-red",
+    "badgeText": "PRIMARY LAYER",
+    "caption": "Soil Organic Carbon (SOC) Deficiency Map — Raipur–Durg Belt (10m Resolution, Sentinel-2 L2A)",
+    "crs": "EPSG:32644",
+    "stats": "Satellite RF SOC Model · SOC Deficiency Index (0–1)"
+  },
+  {
+    "id": "zonal",
+    "title": "Zonal Priority Map",
+    "desc": "5×5 sector grid coloured by urgency tier. Each cell represents a 4.4km × 4.4km management zone.",
+    "phase": "Phase 4",
+    "file": "zonal_risk_map.png",
+    "subtitle": "5×5 regular grid · 25 agricultural sectors",
+    "badge": "badge-amber",
+    "badgeText": "ZONAL GRID",
+    "caption": "Zonal Organic Carbon Priority Sector Map — 5×5 Grid (Raipur–Durg Rice Belt)",
+    "crs": "EPSG:32644",
+    "stats": "Ranked by mean SOC deficiency · Top sector listed"
+  },
+  {
+    "id": "confidence",
+    "title": "Model Confidence Map",
+    "desc": "Random Forest prediction confidence per pixel. Darker regions indicate lower certainty — flag for ground-truth sampling.",
+    "phase": "Phase 4",
+    "file": "model_confidence_map.png",
+    "subtitle": "Prediction uncertainty · Ensemble spread",
+    "badge": "badge-violet",
+    "badgeText": "CONFIDENCE",
+    "caption": "Model Ensemble Confidence / Uncertainty Map",
+    "crs": "EPSG:32644",
+    "stats": "Ensemble trees: 150 · Tree std-dev uncertainty"
+  },
+  {
+    "id": "bsi",
+    "title": "Bare Soil Index (BSI)",
+    "desc": "Spectral index isolating bare soil pixels. Threshold ≤ 0.30 NDVI applied before BSI extraction.",
+    "phase": "Phase 2",
+    "file": "bsi_map.png",
+    "subtitle": "Topsoil exposure · NDVI ≤ 0.30 masked",
+    "badge": "badge-amber",
+    "badgeText": "SPECTRAL",
+    "caption": "Bare Soil Index (BSI) Map — Raipur AOI",
+    "crs": "EPSG:32644",
+    "stats": "Bare soil candidate pixels · NDVI ≤ 0.30"
+  },
+  {
+    "id": "ndvi",
+    "title": "NDVI Vegetation Map",
+    "desc": "Normalised Difference Vegetation Index from Sentinel-2 10m bands. Green = active canopy; Red = exposed topsoil.",
+    "phase": "Phase 2",
+    "file": "ndvi_map.png",
+    "subtitle": "Normalized Difference Vegetation Index",
+    "badge": "badge-emerald",
+    "badgeText": "VEGETATION",
+    "caption": "NDVI Vegetation Index Map — Raipur AOI",
+    "crs": "EPSG:32644",
+    "stats": "Threshold: NDVI ≤ 0.30 for bare soil"
+  },
+  {
+    "id": "false_color",
+    "title": "False Color Composite",
+    "desc": "NIR-Red-Green band composite (B08-B04-B03) for visual interpretation of crop/soil boundaries.",
+    "phase": "Phase 2",
+    "file": "false_color_composite.png",
+    "subtitle": "NIR-Red-Green · Vegetation and bare soil",
+    "badge": "badge-cyan",
+    "badgeText": "FALSE COLOR",
+    "caption": "Sentinel-2 False Color Composite (NIR-R-G)",
+    "crs": "EPSG:32644",
+    "stats": "B08/B04/B03 composite"
+  },
+  {
+    "id": "histogram",
+    "title": "Risk Score Histogram",
+    "desc": "Frequency distribution of SOC Deficiency Index values across all bare-soil pixels in the AOI.",
+    "phase": "Phase 3",
+    "file": "risk_histogram.png",
+    "subtitle": "SOC Deficiency Index distribution across bare-soil pixels",
+    "badge": "badge-violet",
+    "badgeText": "DISTRIBUTION",
+    "caption": "SOC Deficiency Risk Score Distribution Histogram — Raipur AOI",
+    "crs": "EPSG:32644",
+    "stats": "50 bins · color-coded risk bands (green/amber/red)"
+  }
+]

@@ -6,17 +6,17 @@ and outputs high-quality visualization maps.
 
 import os
 import sys
+
 import numpy as np
 from rich.console import Console
 from rich.table import Table
 from rich.panel import Panel
 
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
-sys.path.append(PROJECT_ROOT)
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))  # make `src/` importable under any invocation
 
-from src.spectral import load_sentinel2_stack, compute_ndvi, compute_bsi, generate_bare_soil_mask
-from src.visualize import plot_false_color_composite, plot_bsi_map, plot_ndvi_map
+from config import PHASE2_OUTPUT_DIR
+from spectral import load_sentinel2_stack, compute_ndvi, compute_bsi, generate_bare_soil_mask
+from visualize import plot_false_color_composite, plot_bsi_map, plot_ndvi_map
 
 console = Console()
 
@@ -74,7 +74,7 @@ def run_phase2():
 
     # 4. Generate Visualization Maps
     console.print("\n[bold yellow][4/4] Generating high-resolution PNG maps in outputs/phase2/...[/bold yellow]")
-    out_dir = os.path.join(PROJECT_ROOT, "outputs", "phase2")
+    out_dir = PHASE2_OUTPUT_DIR
 
     path_fc = plot_false_color_composite(bands, output_dir=out_dir)
     path_bsi = plot_bsi_map(bsi, mask, output_dir=out_dir)

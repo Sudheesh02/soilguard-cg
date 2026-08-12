@@ -6,27 +6,31 @@ model confidence mapping, executive report rendering, and rich terminal output.
 
 import os
 import sys
-import numpy as np
-import pandas as pd
+
 import joblib
 from rich.console import Console
 from rich.table import Table
 from rich.panel import Panel
 
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
-if PROJECT_ROOT not in sys.path:
-    sys.path.append(PROJECT_ROOT)
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))  # make `src/` importable under any invocation
 
-from src.spectral import load_sentinel2_stack, compute_bsi
-from src.ml_risk import prepare_feature_matrix, predict_full_risk_map, load_soilgrids_stack, MODEL_SAVE_PATH
-from src.zonal import compute_zonal_statistics, plot_zonal_risk_map
-from src.recommendations import generate_sector_recommendations
-from src.confidence import compute_ensemble_uncertainty, plot_confidence_map
-from src.report import generate_executive_report
+from config import PHASE4_OUTPUT_DIR, MODEL_SAVE_PATH
+from ml_risk import (
+    prepare_feature_matrix,
+    predict_full_risk_map,
+    load_soilgrids_stack,
+    load_model_metrics,
+)
+from spectral import load_sentinel2_stack
+from zonal import compute_zonal_statistics, plot_zonal_risk_map
+from recommendations import generate_sector_recommendations
+from confidence import compute_ensemble_uncertainty, plot_confidence_map
+from report import generate_executive_report
+from tables import priority_sectors_table
 
 console = Console()
-OUTPUT_DIR = os.path.join(PROJECT_ROOT, "outputs", "phase4")
+OUTPUT_DIR = PHASE4_OUTPUT_DIR
+
 
 def run_phase4():
     os.makedirs(OUTPUT_DIR, exist_ok=True)
@@ -35,8 +39,8 @@ def run_phase4():
     # 1. Load Data & Trained Model
     console.print("[bold yellow][1/5] Loading Golden Rasters & Trained RF SOC Model...[/bold yellow]")
     s2_bands, prof = load_sentinel2_stack()
-    df_features, y_target, metadata = prepare_feature_matrix()
     soil_bands = load_soilgrids_stack()
+    df_features, y_target, metadata = prepare_feature_matrix(s2_bands=s2_bands, soil_bands=soil_bands, profile=prof)
 
     if not os.path.exists(MODEL_SAVE_PATH):
         raise FileNotFoundError(f"Model file not found at: {MODEL_SAVE_PATH}. Please run Phase 3 first.")
@@ -44,9 +48,9 @@ def run_phase4():
     rf = joblib.load(MODEL_SAVE_PATH)
     console.print(f"  • Loaded RF SOC Model: {rf.n_estimators} trees (Features: {rf.n_features_in_})")
 
-    # Reconstruct 2D SOC Deficiency Map and 2D BSI Map
+    # Reconstruct 2D SOC Deficiency Map (BSI 2D map comes from the feature metadata)
     risk_map = predict_full_risk_map(rf, df_features, metadata)
-    bsi_map_2d = compute_bsi(s2_bands['swir1'], s2_bands['red'], s2_bands['nir'], s2_bands['blue'])
+    bsi_map_2d = metadata['bsi']
 
     # 2. Zonal Analytics & Priority Ranking
     console.print("\n[bold yellow][2/5] Partitioning AOI into Agricultural Sectors & Ranking SOC Deficiency Priorities...[/bold yellow]")
@@ -64,25 +68,11 @@ def run_phase4():
     console.print(f"[OK] Saved Zonal SOC Priority Ranking to: {zonal_csv_path}")
 
     # Rich Terminal Table for Top 5 Priority Sectors
-    table_zonal = Table(title="Top 5 Critical Sectors Requiring Soil Organic Carbon (SOC) Building", border_style="red")
-    table_zonal.add_column("Rank", justify="center", style="bold red")
-    table_zonal.add_column("Sector Name", style="bold white")
-    table_zonal.add_column("Mean SOC Def", justify="right", style="bold yellow")
-    table_zonal.add_column("Bare Area (ha)", justify="right")
-    table_zonal.add_column("High Def Area (ha)", justify="right", style="bold red")
-    table_zonal.add_column("High Def %", justify="right", style="magenta")
-
-    for _, row in df_zonal.head(5).iterrows():
-        table_zonal.add_row(
-            f"#{row['priority_rank']}",
-            row['sector_name'],
-            f"{row['mean_risk_score']:.4f}",
-            f"{row['bare_soil_ha']:,.1f}",
-            f"{row['high_risk_ha']:,.1f}",
-            f"{row['pct_high_risk']:.1f}%"
-        )
-
-    console.print(table_zonal)
+    console.print(priority_sectors_table(
+        df_zonal,
+        title="Top 5 Critical Sectors Requiring Soil Organic Carbon (SOC) Building",
+        include_pct=True,
+    ))
 
     # 3. Actionable Recommendation Engine
     console.print("\n[bold yellow][3/5] Generating Regenerative Carbon Recommendation Packages for Sectors...[/bold yellow]")
@@ -114,9 +104,9 @@ def run_phase4():
     conf_map_path = plot_confidence_map(uncertainty_map, output_dir=OUTPUT_DIR)
     zonal_map_path = plot_zonal_risk_map(risk_map, df_zonal, grid_size=(5, 5), output_dir=OUTPUT_DIR)
 
-    # 5. Generate Executive Summary Report
+    # 5. Generate Executive Summary Report (uses the metrics recorded at training time)
     console.print("\n[bold yellow][5/5] Auto-Generating Executive Summary Report...[/bold yellow]")
-    metrics = {'r2': 0.4568, 'rmse': 0.0929}  # from Phase 3 satellite model
+    metrics = load_model_metrics()
     report_path = generate_executive_report(df_zonal, df_rec, metrics, output_dir=OUTPUT_DIR)
 
     console.print(Panel.fit(
@@ -129,6 +119,6 @@ def run_phase4():
         title="SoilGuard-SOC Phase 4 Complete", border_style="green"
     ))
 
+
 if __name__ == "__main__":
     run_phase4()
-

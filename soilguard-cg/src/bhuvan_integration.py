@@ -16,23 +16,20 @@ Safety Guarantee:
 
 import os
 import json
-import time
 import urllib.request
-import urllib.parse
 import pandas as pd
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
 
+from config import PROJECT_ROOT, PHASE4_OUTPUT_DIR
+
 console = Console()
 
 # Path definitions
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.abspath(os.path.join(SCRIPT_DIR, ".."))
 CONFIG_PATH = os.path.join(PROJECT_ROOT, "data", "bhuvan_experimental", "bhuvan_config.json")
-ZONAL_CSV_PATH = os.path.join(PROJECT_ROOT, "outputs", "phase4", "zonal_priority_ranking.csv")
-REC_CSV_PATH = os.path.join(PROJECT_ROOT, "outputs", "phase4", "agronomic_recommendations.csv")
-OUT_DIR = os.path.join(PROJECT_ROOT, "outputs", "phase4")
+ZONAL_CSV_PATH = os.path.join(PHASE4_OUTPUT_DIR, "zonal_priority_ranking.csv")
+OUT_DIR = PHASE4_OUTPUT_DIR
 
 # Fallback ISRO Bhuvan Village Gazetteers for Raipur/Durg Paddy Belt (Used if API network times out)
 BHUVAN_VILLAGE_GAZETTEER = {
@@ -41,8 +38,8 @@ BHUVAN_VILLAGE_GAZETTEER = {
     "Arang (B-2)": {"village": "Nawapara / Rajim Road", "panchayat": "Nawapara Gram Panchayat", "block": "Arang", "district": "Raipur"},
     "Abhanpur (A-2)": {"village": "Mandir Hasaud", "panchayat": "Mandir Hasaud Gram Panchayat", "block": "Abhanpur", "district": "Raipur"},
     "Raipur Rural (C-1)": {"village": "Mana / Dunda", "panchayat": "Dunda Gram Panchayat", "block": "Raipur Rural", "district": "Raipur"},
-    "Durg East (D-1)": {"village": "Bhilai Rural / Kumhari", "panchayat": "Kumhari Gram Panchayat", "block": "Patan / Durg", "district": "Durg"},
-    "Durg Central (D-2)": {"village": "Patan / Anda", "panchayat": "Anda Gram Panchayat", "block": "Patan", "district": "Durg"}
+    "Dharsiwa (D-1)": {"village": "Bhilai Rural / Kumhari", "panchayat": "Kumhari Gram Panchayat", "block": "Patan / Durg", "district": "Durg"},
+    "Dharsiwa (D-2)": {"village": "Patan / Anda", "panchayat": "Anda Gram Panchayat", "block": "Patan", "district": "Durg"}
 }
 
 

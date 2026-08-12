@@ -1,6 +1,7 @@
 'use client';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Cell, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { SECTORS } from '@/lib/data';
+import { TIER_COLORS } from '@/lib/theme';
 
 const DATA = SECTORS.map(s => ({
   name: s.gridId,
@@ -9,7 +10,7 @@ const DATA = SECTORS.map(s => ({
   fullName: s.name,
 }));
 
-const COLORS = { 1: '#ef4444', 2: '#f59e0b', 3: '#10b981' };
+const COLORS = TIER_COLORS;
 
 function CustomTooltip({ active, payload }: any) {
   if (!active || !payload?.length) return null;
@@ -28,7 +29,7 @@ export default function RiskChart() {
     <div className="card p-5 h-full">
       <div className="mb-4 flex items-start justify-between">
         <div>
-          <h3 className="font-display font-semibold text-white text-[15px]">SOC Risk Score — All 25 Sectors</h3>
+          <h3 className="font-display font-semibold text-white text-[15px]">SOC Risk Score: All 25 Sectors</h3>
           <p className="text-[11px] text-[#4a6890] mt-0.5">Mean SOC Deficiency Index by sector grid cell</p>
         </div>
         <div className="flex items-center gap-3 shrink-0">

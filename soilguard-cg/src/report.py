@@ -18,7 +18,7 @@ def generate_executive_report(df_zonal, df_rec, metrics, output_dir):
     high_risk_ha = df_zonal['high_risk_ha'].sum()
     pct_high_risk = (high_risk_ha / total_soil_ha) * 100.0 if total_soil_ha > 0 else 0
 
-    report_content = f"""# SoilGuard-SOC: Chhattisgarh Soil Carbon Sentinel
+    report_content = rf"""# SoilGuard-SOC: Chhattisgarh Soil Carbon Sentinel
 **National Space Day Ideathon 2026 – COSINE NIT Raipur + NRSC/ISRO**
 *Target: Raipur & Durg Agricultural Plains (AOI: 81.60°E–81.80°E, 21.10°N–21.30°N | EPSG:32644)*
 
@@ -57,7 +57,7 @@ Agricultural topsoils in Chhattisgarh (*Dhan ka Katora*) experience intense post
 
         report_content += f"- **Rank #{rank} (`{sector_name}`)**: Mean SOC Def `{risk:.4f}` | High Def Area `{hr_ha:,.1f} ha` | *Advisory*: {action}\n"
 
-    report_content += f"""
+    report_content += rf"""
 
 ---
 

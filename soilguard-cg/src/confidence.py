@@ -4,18 +4,16 @@ Computes prediction standard deviation across ensemble trees to generate an unce
 """
 
 import os
-import sys
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
-if PROJECT_ROOT not in sys.path:
-    sys.path.append(PROJECT_ROOT)
+from config import PHASE4_OUTPUT_DIR
+from plot_utils import style_dark_axes, style_dark_colorbar, add_footnote, save_dark_figure
 
-OUTPUT_DIR = os.path.join(PROJECT_ROOT, "outputs", "phase4")
+OUTPUT_DIR = PHASE4_OUTPUT_DIR
+
 
 def compute_ensemble_uncertainty(rf, df_features, metadata, n_sample_trees=30):
     """
@@ -41,14 +39,14 @@ def compute_ensemble_uncertainty(rf, df_features, metadata, n_sample_trees=30):
 
     return uncertainty_map
 
+
 def plot_confidence_map(uncertainty_map, output_dir=OUTPUT_DIR):
     """Generates 300 DPI PPT-ready Model Uncertainty / Confidence Map."""
     os.makedirs(output_dir, exist_ok=True)
     out_path = os.path.join(output_dir, "model_confidence_map.png")
 
     fig, ax = plt.subplots(figsize=(10, 9), dpi=300)
-    fig.patch.set_facecolor('#0f172a')
-    ax.set_facecolor('#0f172a')
+    style_dark_axes(ax, fig)
 
     # Plasma colormap: low std = high confidence (dark/purple), high std = higher variance (yellow/pink)
     cmap = plt.cm.plasma.copy()
@@ -59,26 +57,12 @@ def plot_confidence_map(uncertainty_map, output_dir=OUTPUT_DIR):
 
     im = ax.imshow(uncertainty_map, cmap=cmap, vmin=0.0, vmax=vmax)
 
-    cbar = plt.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
-    cbar.set_label('Prediction Uncertainty (Tree Std Dev)', color='white', fontsize=11, labelpad=10)
-    cbar.ax.yaxis.set_tick_params(color='white')
-    plt.setp(plt.getp(cbar.ax, 'yticklabels'), color='white')
+    style_dark_colorbar(ax, im, 'Prediction Uncertainty (Tree Std Dev)')
 
     ax.set_title("Raipur AOI – SoilGuard-SOC\nModel Uncertainty / Ensemble Confidence Map",
                  fontsize=15, fontweight='bold', color='white', pad=12)
-    ax.tick_params(colors='white', labelsize=9)
-    for spine in ax.spines.values():
-        spine.set_color('#334155')
 
     mean_std = np.mean(valid_std) if len(valid_std) > 0 else 0.0
+    add_footnote(ax, f"Ensemble Sampling: 30 Trees | Mean Prediction Std Dev: ±{mean_std:.4f} (High Confidence)")
 
-    ax.text(0.02, 0.02, f"Ensemble Sampling: 30 Trees | Mean Prediction Std Dev: ±{mean_std:.4f} (High Confidence)",
-            transform=ax.transAxes, color='#94a3b8', fontsize=9,
-            bbox=dict(boxstyle='round,pad=0.4', facecolor='#1e293b', edgecolor='#475569', alpha=0.8))
-
-    plt.tight_layout()
-    plt.savefig(out_path, dpi=300, facecolor=fig.get_facecolor(), bbox_inches='tight')
-    plt.close()
-
-    print(f"[OK] Saved Model Confidence Map to: {out_path}")
-    return out_path
+    return save_dark_figure(fig, out_path, log_message=f"[OK] Saved Model Confidence Map to: {out_path}")

@@ -5,19 +5,16 @@ computes zonal statistics, and ranks sectors by Soil Organic Carbon (SOC) defici
 """
 
 import os
-import sys
 import numpy as np
 import pandas as pd
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
-if PROJECT_ROOT not in sys.path:
-    sys.path.append(PROJECT_ROOT)
+from config import PHASE4_OUTPUT_DIR, PIXEL_AREA_HA, HIGH_RISK_CUTOFF
+from plot_utils import style_dark_axes, style_dark_colorbar, add_footnote, save_dark_figure
 
-OUTPUT_DIR = os.path.join(PROJECT_ROOT, "outputs", "phase4")
+OUTPUT_DIR = PHASE4_OUTPUT_DIR
 
 # Representative agricultural sector grid over Raipur District, Chhattisgarh
 SECTOR_NAMES = [
@@ -28,9 +25,6 @@ SECTOR_NAMES = [
     ["Tilda (E-1)", "Tilda (E-2)", "Tilda (E-3)", "Tilda (E-4)", "Tilda (E-5)"]
 ]
 
-# Re-calibrated SOC Deficiency Thresholds
-LOW_RISK_CUTOFF = 0.45
-HIGH_RISK_CUTOFF = 0.58
 
 def compute_zonal_statistics(risk_map, soc_map, bsi_map, ph_map, clay_map=None, grid_size=(5, 5)):
     """
@@ -66,14 +60,13 @@ def compute_zonal_statistics(risk_map, soc_map, bsi_map, ph_map, clay_map=None, 
             if bare_px == 0:
                 continue
 
-            pixel_area_ha = 0.01  # 10m x 10m = 100 m^2 = 0.01 ha
-            sector_area_ha = total_px * pixel_area_ha
-            bare_area_ha = bare_px * pixel_area_ha
+            sector_area_ha = total_px * PIXEL_AREA_HA
+            bare_area_ha = bare_px * PIXEL_AREA_HA
 
             mean_risk = np.mean(valid_risk)
             max_risk = np.max(valid_risk)
             high_risk_px = np.sum(valid_risk > HIGH_RISK_CUTOFF)
-            high_risk_ha = high_risk_px * pixel_area_ha
+            high_risk_ha = high_risk_px * PIXEL_AREA_HA
             pct_high_risk = (high_risk_px / bare_px) * 100.0
 
             valid_soc = sub_soc[~np.isnan(sub_soc)]
@@ -109,6 +102,18 @@ def compute_zonal_statistics(risk_map, soc_map, bsi_map, ph_map, clay_map=None, 
 
     return df_zonal
 
+
+def summarize_area_breakdown(df_zonal):
+    """
+    Computes the audit metrics used by the demo dashboard and the executive report:
+    total evaluated soil area (ha), high-deficiency area (ha), and % high risk.
+    """
+    total_soil_ha = df_zonal['bare_soil_ha'].sum()
+    high_risk_ha = df_zonal['high_risk_ha'].sum()
+    pct_high_risk = (high_risk_ha / total_soil_ha) * 100.0 if total_soil_ha > 0 else 0.0
+    return total_soil_ha, high_risk_ha, pct_high_risk
+
+
 def plot_zonal_risk_map(risk_map, df_zonal, grid_size=(5, 5), output_dir=OUTPUT_DIR):
     """Generates 2D Zonal SOC Priority Map with Sector Grid Overlays."""
     os.makedirs(output_dir, exist_ok=True)
@@ -119,8 +124,7 @@ def plot_zonal_risk_map(risk_map, df_zonal, grid_size=(5, 5), output_dir=OUTPUT_
     c_step = width // grid_size[1]
 
     fig, ax = plt.subplots(figsize=(11, 10), dpi=300)
-    fig.patch.set_facecolor('#0f172a')
-    ax.set_facecolor('#0f172a')
+    style_dark_axes(ax, fig)
 
     cmap = plt.cm.RdYlGn_r.copy()
     cmap.set_bad(color='#1e293b')
@@ -145,25 +149,11 @@ def plot_zonal_risk_map(risk_map, df_zonal, grid_size=(5, 5), output_dir=OUTPUT_
                 color='white', fontsize=8, fontweight='bold', ha='center', va='center',
                 bbox=dict(boxstyle='round,pad=0.35', facecolor='#7f1d1d', edgecolor='#ef4444', alpha=0.88))
 
-    cbar = plt.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
-    cbar.set_label('Zonal SOC Deficiency Index (0-1)', color='white', fontsize=11, labelpad=10)
-    cbar.ax.yaxis.set_tick_params(color='white')
-    plt.setp(plt.getp(cbar.ax, 'yticklabels'), color='white')
+    style_dark_colorbar(ax, im, 'Zonal SOC Deficiency Index (0-1)')
 
     ax.set_title("Raipur AOI – SoilGuard-SOC\nZonal Organic Carbon Priority Map (5x5 Sector Grid)",
                  fontsize=15, fontweight='bold', color='white', pad=12)
-    ax.tick_params(colors='white', labelsize=9)
-    for spine in ax.spines.values():
-        spine.set_color('#334155')
 
-    ax.text(0.02, 0.02, "Note: Sectors represent 5x5 regular analysis grid blocks over Raipur AOI (22km x 22km)",
-            transform=ax.transAxes, color='#94a3b8', fontsize=8.5,
-            bbox=dict(boxstyle='round,pad=0.4', facecolor='#1e293b', edgecolor='#475569', alpha=0.85))
+    add_footnote(ax, "Note: Sectors represent 5x5 regular analysis grid blocks over Raipur AOI (22km x 22km)")
 
-    plt.tight_layout()
-    plt.savefig(out_path, dpi=300, facecolor=fig.get_facecolor(), bbox_inches='tight')
-    plt.close()
-
-    print(f"[OK] Saved Zonal SOC Priority Map to: {out_path}")
-    return out_path
-
+    return save_dark_figure(fig, out_path, log_message=f"[OK] Saved Zonal SOC Priority Map to: {out_path}")

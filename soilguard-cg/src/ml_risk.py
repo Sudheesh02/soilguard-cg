@@ -16,26 +16,25 @@ Scientific Design:
 - Note: SoilGrids SOC is EXCLUDED from feature matrix X to ensure the model learns true satellite spectral response patterns.
 """
 
+import json
 import os
-import sys
-import rasterio
+
+import joblib
 import numpy as np
 import pandas as pd
+import rasterio
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.model_selection import train_test_split
 from sklearn.metrics import r2_score, mean_squared_error
-import joblib
+from sklearn.model_selection import train_test_split
 
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
-if PROJECT_ROOT not in sys.path:
-    sys.path.append(PROJECT_ROOT)
+from config import (
+    GOLDEN_SOIL_PATH,
+    MODEL_METRICS_PATH,
+    MODEL_SAVE_PATH,
+    FALLBACK_METRICS,
+)
+from spectral import load_sentinel2_stack, compute_ndvi, compute_bsi, generate_bare_soil_mask
 
-GOLDEN_S2_PATH = os.path.join(PROJECT_ROOT, "data", "golden", "sentinel2_raipur_golden.tif")
-GOLDEN_SOIL_PATH = os.path.join(PROJECT_ROOT, "data", "golden", "soilgrids_raipur_golden.tif")
-MODEL_SAVE_PATH = os.path.join(PROJECT_ROOT, "models", "soil_soc_rf.joblib")
-
-from src.spectral import load_sentinel2_stack, compute_ndvi, compute_bsi, generate_bare_soil_mask
 
 def load_soilgrids_stack(filepath=GOLDEN_SOIL_PATH):
     """
@@ -53,6 +52,7 @@ def load_soilgrids_stack(filepath=GOLDEN_SOIL_PATH):
         ph = src.read(3).astype(np.float32) / 10.0
 
     return {'soc': soc, 'clay': clay, 'ph': ph}
+
 
 def calculate_soc_deficiency_target(soc, bsi):
     """
@@ -74,23 +74,31 @@ def calculate_soc_deficiency_target(soc, bsi):
 
     return soc_deficiency
 
-def prepare_feature_matrix():
+
+def prepare_feature_matrix(s2_bands=None, soil_bands=None, profile=None, ndvi=None, bsi=None, mask=None):
     """
     Extracts 100% satellite spectral features for candidate bare-soil pixels.
     NOTE: SoilGrids SOC is EXCLUDED from input features X.
+
+    Pre-computed arrays (ndvi / bsi / mask) may be passed in to avoid recomputing
+    spectral indices that an upstream phase already calculated (e.g. run_full_demo).
     """
-    s2_bands, prof = load_sentinel2_stack()
-    soil_bands = load_soilgrids_stack()
+    if s2_bands is None:
+        s2_bands, profile = load_sentinel2_stack()
+    if soil_bands is None:
+        soil_bands = load_soilgrids_stack()
 
     blue = s2_bands['blue']
     red = s2_bands['red']
     nir = s2_bands['nir']
     swir1 = s2_bands['swir1']
 
-    ndvi = compute_ndvi(nir, red)
-    bsi = compute_bsi(swir1, red, nir, blue)
-
-    mask, masked_bsi, masked_ndvi = generate_bare_soil_mask(ndvi, nir, bsi)
+    if ndvi is None:
+        ndvi = compute_ndvi(nir, red)
+    if bsi is None:
+        bsi = compute_bsi(swir1, red, nir, blue)
+    if mask is None:
+        mask, _, _ = generate_bare_soil_mask(ndvi, nir, bsi)
 
     soc = soil_bands['soc']
 
@@ -124,17 +132,20 @@ def prepare_feature_matrix():
     y = target_proxy[bare_indices]
 
     metadata = {
-        'profile': prof,
+        'profile': profile,
         'shape': mask.shape,
         'mask': mask,
-        'bare_indices': bare_indices
+        'bare_indices': bare_indices,
+        'bsi': bsi
     }
 
     return df_features, y, metadata
 
+
 def train_soil_risk_model(df_features, y, sample_size=100000, model_save_path=MODEL_SAVE_PATH):
     """
     Trains Random Forest Regressor on satellite spectral features to predict SOC Deficiency Index.
+    Persists the model AND its test metrics (R2/RMSE) so downstream phases never hard-code them.
     """
     os.makedirs(os.path.dirname(model_save_path), exist_ok=True)
 
@@ -162,15 +173,38 @@ def train_soil_risk_model(df_features, y, sample_size=100000, model_save_path=MO
     rf.fit(X_train, y_train)
 
     y_pred = rf.predict(X_test)
-    r2 = r2_score(y_test, y_pred)
-    rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+    metrics = {
+        'r2': float(r2_score(y_test, y_pred)),
+        'rmse': float(np.sqrt(mean_squared_error(y_test, y_pred))),
+    }
 
-    print(f"[OK] Model Trained Successfully | Test R²: {r2:.4f} | Test RMSE: {rmse:.4f}")
+    print(f"[OK] Model Trained Successfully | Test R²: {metrics['r2']:.4f} | Test RMSE: {metrics['rmse']:.4f}")
 
     joblib.dump(rf, model_save_path)
     print(f"[OK] Saved updated SOC model to: {model_save_path}")
 
-    return rf, {'r2': r2, 'rmse': rmse}
+    # Persist metrics for downstream phases (run_phase4 / report) and site data export
+    os.makedirs(os.path.dirname(MODEL_METRICS_PATH), exist_ok=True)
+    with open(MODEL_METRICS_PATH, "w", encoding="utf-8") as f:
+        json.dump(metrics, f, indent=2)
+    print(f"[OK] Saved model metrics to: {MODEL_METRICS_PATH}")
+
+    return rf, metrics
+
+
+def load_model_metrics(metrics_path=MODEL_METRICS_PATH):
+    """
+    Loads the last recorded model metrics (written at training time).
+    Falls back to the golden-recorded values if the file is missing or corrupt.
+    """
+    if os.path.exists(metrics_path):
+        try:
+            with open(metrics_path, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
+            pass
+    return dict(FALLBACK_METRICS)
+
 
 def predict_full_risk_map(rf, df_features, metadata):
     """
@@ -188,9 +222,9 @@ def predict_full_risk_map(rf, df_features, metadata):
 
     return risk_map
 
+
 if __name__ == "__main__":
     df_feat, y, meta = prepare_feature_matrix()
     rf, metrics = train_soil_risk_model(df_feat, y)
     risk_map = predict_full_risk_map(rf, df_feat, meta)
     print(f"SOC Deficiency Map reconstructed: shape={risk_map.shape}, valid_count={np.sum(~np.isnan(risk_map)):,}")
-

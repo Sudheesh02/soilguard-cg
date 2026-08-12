@@ -14,24 +14,30 @@ soilguard-cg/
 │   ├── processed/           # Processed rasters and vectors
 │   └── golden/              # Cached offline datasets (Sentinel-2 + SoilGrids)
 ├── src/
+│   ├── config.py            # Shared paths, constants & sys.path bootstrap (single source)
 │   ├── download_golden.py   # Query STAC & WCS and create windowed golden rasters
 │   ├── verify_golden.py     # Verification script for golden datasets
 │   ├── spectral.py          # NDVI, BSI, and bare soil candidate masking
 │   ├── visualize.py         # Matplotlib PPT-ready map generation
+│   ├── plot_utils.py        # Dark-theme plot helpers shared across map functions
 │   ├── ml_risk.py           # Pure Satellite-Driven Random Forest Soil Risk Regressor
 │   ├── zonal.py             # Zonal analytics & priority sector ranking
 │   ├── recommendations.py   # Actionable agronomic recommendation package engine
 │   ├── confidence.py        # Ensemble prediction uncertainty & confidence mapping
 │   ├── report.py            # Executive Summary report generator
+│   ├── tables.py            # Shared Rich table builders (feature importance, sectors)
 │   ├── run_phase2.py        # Phase 2 spectral runner script
 │   ├── run_phase3.py        # Phase 3 ML risk runner script
-│   └── run_phase4.py        # Phase 4 zonal, recommendations & report runner
+│   ├── run_phase4.py        # Phase 4 zonal, recommendations & report runner
+│   └── run_full_demo.py     # End-to-end orchestrator driving Phases 2 → 4
 ├── outputs/
 │   ├── phase2/              # Generated high-res PNG maps (False-color, BSI, NDVI)
 │   ├── phase3/              # Risk Score map PNG, Histogram PNG, and Summary Stats CSV
 │   └── phase4/              # Zonal map PNG, Confidence map PNG, Priority CSVs, and Executive Summary
 ├── models/
-│   └── soil_risk_rf.joblib  # Trained Satellite-Driven Random Forest Model
+│   ├── soil_soc_rf.joblib   # Trained Satellite-Driven Random Forest Model
+│   ├── soil_soc_metrics.json# Real test metrics (R²/RMSE) written by Phase 3
+│   └── soil_risk_rf.joblib  # Legacy model (kept for compatibility)
 ├── notebooks/               # Analysis and prototyping notebooks
 ├── environment.yml          # Conda environment definition
 ├── requirements.txt         # Pip dependency file
@@ -101,6 +107,16 @@ Generated Phase 4 Outputs (`outputs/phase4/`):
 - `zonal_priority_ranking.csv` (Ranked CSV of agricultural sectors by intervention urgency)
 - `agronomic_recommendations.csv` (Targeted agronomic intervention packages)
 - `SoilGuard_CG_Executive_Summary.md` (Executive Summary Report)
+
+> **Metrics**: Phase 3 writes the trained model's real test metrics to `models/soil_soc_metrics.json`. Phase 4 loads this file instead of hard-coding R²/RMSE, so every report reflects the actual trained model.
+
+### Orchestrated Run (Recommended)
+
+```bash
+python src/run_full_demo.py
+```
+
+Runs Phases 2 → 4 back-to-back. Spectral indices (NDVI/BSI) and the bare-soil mask are computed **once** and passed straight into model training — no duplicate raster I/O.
 
 ---
 

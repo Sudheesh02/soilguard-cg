@@ -1,27 +1,30 @@
+import StatCard from '@/components/StatCard';
+import { METRICS } from '@/lib/site-data';
+
 const FEATURES = [
-  { name: 'swir1_reflectance', label: 'SWIR-1 Reflectance',   pct: 100, note: 'Soil moisture & mineral composition — dominant predictor' },
+  { name: 'swir1_reflectance', label: 'SWIR-1 Reflectance',   pct: 100, note: 'Soil moisture & mineral composition: dominant predictor' },
   { name: 'swir1_nir_ratio',   label: 'SWIR-1 / NIR Ratio',   pct: 82,  note: 'Soil moisture & mineral index (B11/B08)' },
-  { name: 'bsi',               label: 'Bare Soil Index (BSI)', pct: 68,  note: '(SWIR-1+Red−NIR−Blue)/(SWIR-1+Red+NIR+Blue)' },
+  { name: 'bsi',               label: 'Bare Soil Index (BSI)', pct: 68,  note: '(SWIR-1+Red-NIR-Blue)/(SWIR-1+Red+NIR+Blue)' },
   { name: 'swir1_red_ratio',   label: 'SWIR-1 / Red Ratio',   pct: 57,  note: 'Bare soil spectral slope indicator' },
-  { name: 'nir_reflectance',   label: 'NIR Reflectance',       pct: 45,  note: 'B08 — vegetation and soil structure' },
-  { name: 'bsi_ndvi_ratio',    label: 'BSI / NDVI Ratio',      pct: 38,  note: 'Soil–vegetation transition metric' },
-  { name: 'red_reflectance',   label: 'Red Reflectance',       pct: 27,  note: 'B04 — soil color and iron oxides' },
-  { name: 'ndvi',              label: 'NDVI',                  pct: 19,  note: '(NIR−Red)/(NIR+Red) — vegetation density' },
-  { name: 'blue_reflectance',  label: 'Blue Reflectance',      pct: 11,  note: 'B02 — atmospheric baseline' },
+  { name: 'nir_reflectance',   label: 'NIR Reflectance',       pct: 45,  note: 'B08: vegetation and soil structure' },
+  { name: 'bsi_ndvi_ratio',    label: 'BSI / NDVI Ratio',      pct: 38,  note: 'Soil-vegetation transition metric' },
+  { name: 'red_reflectance',   label: 'Red Reflectance',       pct: 27,  note: 'B04: soil color and iron oxides' },
+  { name: 'ndvi',              label: 'NDVI',                  pct: 19,  note: '(NIR-Red)/(NIR+Red): vegetation density' },
+  { name: 'blue_reflectance',  label: 'Blue Reflectance',      pct: 11,  note: 'B02: atmospheric baseline' },
 ];
 
 const HONESTY_NOTES = [
   {
     icon: '📊',
-    title: 'Model R² = 0.4481',
-    body: 'The test R² reflects a moderately predictive spectral-to-soil risk mapping. This is expected for a proxy-driven model without field-collected ground truth — it should not be compared to direct SOC regression benchmarks.',
+    title: `Model R² = ${METRICS.r2.toFixed(4)}`,
+    body: 'The test R² reflects a moderately predictive spectral-to-soil risk mapping. This is expected for a proxy-driven model without field-collected ground truth; it should not be compared to direct SOC regression benchmarks.',
     color: '#f59e0b',
     border: 'rgba(245,158,11,0.20)',
   },
   {
     icon: '🧪',
     title: 'Target Is a Proxy',
-    body: 'The target variable y = 0.50×(1−SOC_norm) + 0.50×BSI_norm is a composite proxy for soil degradation risk — not a direct measurement. SoilGrids SOC was used as a proxy grounding signal only, not as an input feature.',
+    body: 'The target variable y = 0.50×(1-SOC_norm) + 0.50×BSI_norm is a composite proxy for soil degradation risk, not a direct measurement. SoilGrids SOC was used as a proxy grounding signal only, not as an input feature.',
     color: '#00d4ff',
     border: 'rgba(0,212,255,0.20)',
   },
@@ -44,13 +47,13 @@ const HONESTY_NOTES = [
 const THRESHOLDS = [
   { label: 'Low Risk',         range: 'Risk < 0.45',      color: '#10b981', desc: 'Stable SOC. Routine monitoring + preventive INM.' },
   { label: 'Moderate Risk',    range: '0.45 ≤ Risk < 0.58', color: '#f59e0b', desc: 'Mild carbon vulnerability. INM + organic matter replenishment.' },
-  { label: 'High Risk',        range: 'Risk ≥ 0.58',      color: '#ef4444', desc: 'Severe degradation. URGENT — FYM/Biochar + Lime + rotation.' },
+  { label: 'High Risk',        range: 'Risk ≥ 0.58',      color: '#ef4444', desc: 'Severe degradation. URGENT: FYM/Biochar + Lime + rotation.' },
   { label: 'NDVI Mask',        range: 'NDVI ≤ 0.30',      color: '#818cf8', desc: 'Bare soil candidate pixels. Vegetation pixels excluded from model.' },
 ];
 
 export default function MethodologySection() {
   return (
-    <section id="methodology" className="py-24 bg-[#0a0f1a] section-border">
+    <section id="methodology" className="py-16 bg-[#0a0f1a] section-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Header */}
@@ -69,10 +72,7 @@ export default function MethodologySection() {
 
           {/* Feature importance */}
           <div className="lg:col-span-7">
-            <div
-              className="rounded-2xl p-7"
-              style={{ background: '#0e1522', border: '1px solid rgba(255,255,255,0.09)' }}
-            >
+            <StatCard className="p-7" background="#0e1522" border="1px solid rgba(255,255,255,0.09)">
               <div className="flex items-center justify-between mb-6">
                 <div>
                   <p className="eyebrow mb-2">Feature Importance</p>
@@ -116,17 +116,14 @@ export default function MethodologySection() {
               >
                 <strong className="text-[#00d4ff]">SWIR-1 dominance confirmed:</strong> Short-wave infrared reflectance (B11) emerges as the most informative band for detecting soil moisture deficits and mineral composition changes associated with organic carbon depletion.
               </div>
-            </div>
+            </StatCard>
           </div>
 
           {/* Right column */}
           <div className="lg:col-span-5 space-y-5">
 
             {/* Thresholds */}
-            <div
-              className="rounded-2xl p-6"
-              style={{ background: '#0e1522', border: '1px solid rgba(255,255,255,0.09)' }}
-            >
+            <StatCard className="p-6" background="#0e1522" border="1px solid rgba(255,255,255,0.09)">
               <p className="eyebrow mb-5">Classification Thresholds</p>
               <div className="space-y-3.5">
                 {THRESHOLDS.map(t => (
@@ -146,13 +143,10 @@ export default function MethodologySection() {
                   </div>
                 ))}
               </div>
-            </div>
+            </StatCard>
 
             {/* Model stats mini */}
-            <div
-              className="rounded-2xl p-6"
-              style={{ background: '#0e1522', border: '1px solid rgba(255,255,255,0.09)' }}
-            >
+            <StatCard className="p-6" background="#0e1522" border="1px solid rgba(255,255,255,0.09)">
               <p className="eyebrow mb-4">Model Architecture</p>
               <div className="grid grid-cols-2 gap-3">
                 {[
@@ -160,8 +154,8 @@ export default function MethodologySection() {
                   { label: 'Trees',         value: '150 estimators' },
                   { label: 'Train split',   value: '80 / 20' },
                   { label: 'Features',      value: '9 spectral' },
-                  { label: 'Test R²',       value: '0.4568' },
-                  { label: 'Test RMSE',     value: '0.0929' },
+                  { label: 'Test R²',       value: METRICS.r2.toFixed(4) },
+                  { label: 'Test RMSE',     value: METRICS.rmse.toFixed(4) },
                 ].map(m => (
                   <div key={m.label} className="rounded-xl p-3.5" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
                     <p className="eyebrow text-[9px] mb-1.5">{m.label}</p>
@@ -169,7 +163,7 @@ export default function MethodologySection() {
                   </div>
                 ))}
               </div>
-            </div>
+            </StatCard>
 
           </div>
         </div>
@@ -177,13 +171,11 @@ export default function MethodologySection() {
         {/* Honesty notes */}
         <div className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-5">
           {HONESTY_NOTES.map((n, i) => (
-            <div
+            <StatCard
               key={i}
-              className="rounded-2xl p-6"
-              style={{
-                background: `radial-gradient(ellipse 100% 60% at 0% 0%, ${n.color}0a, transparent), #0e1522`,
-                border: `1px solid ${n.border}`,
-              }}
+              className="p-6"
+              background={`radial-gradient(ellipse 100% 60% at 0% 0%, ${n.color}0a, transparent), #0e1522`}
+              border={`1px solid ${n.border}`}
             >
               <div className="flex items-start gap-4">
                 <span className="text-2xl shrink-0">{n.icon}</span>
@@ -192,7 +184,7 @@ export default function MethodologySection() {
                   <p className="text-[13px] text-[#4a6890] leading-relaxed">{n.body}</p>
                 </div>
               </div>
-            </div>
+            </StatCard>
           ))}
         </div>
 
