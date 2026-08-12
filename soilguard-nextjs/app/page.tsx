@@ -10,6 +10,7 @@ import RankingsSection   from '@/components/RankingsSection';
 import MethodologySection from '@/components/MethodologySection';
 import TerminalSection   from '@/components/TerminalSection';
 import RoadmapSection    from '@/components/RoadmapSection';
+import TeamSection       from '@/components/TeamSection';
 import Footer            from '@/components/Footer';
 import LightboxModal     from '@/components/LightboxModal';
 
@@ -35,6 +36,7 @@ export default function Home() {
         <MethodologySection />
         <TerminalSection   />
         <RoadmapSection    />
+        <TeamSection       />
         <Footer            />
       </main>
 
