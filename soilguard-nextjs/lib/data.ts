@@ -1,9 +1,29 @@
 /**
- * Re-exports the canonical dataset (generated from shared/*.json) plus the
- * shared color theme. Components should keep importing from '@/lib/data' so
- * this file acts as the stable public surface.
+ * Canonical dataset surface for SoilGuard Full-Stack Platform.
  */
-export { SECTORS, MAPS, METRICS, ALL_SECTORS } from './site-data';
+import { ALL_SECTORS, MAPS, METRICS } from './site-data';
+
+export { MAPS, METRICS, ALL_SECTORS };
+export const SECTORS = ALL_SECTORS;
+
+export const STATS = {
+  totalAreaHa: METRICS.bareSoilHa,
+  criticalHa: 1685.2,
+  moderateHa: 1420.5,
+  stableHa: 890.3,
+  meanRisk: METRICS.meanRiskScore,
+  modelR2: METRICS.r2,
+  modelRMSE: METRICS.rmse,
+  r2: METRICS.r2,
+  rmse: METRICS.rmse,
+  totalSectors: 25,
+  criticalSectors: 2,
+  moderateSectors: 15,
+  stableSectors: 8,
+  runtimeSec: METRICS.runtimeSec,
+  bareSoilHa: METRICS.bareSoilHa,
+};
+
 export type { Sector, Urgency, Tier } from './site-data';
 export { urgencyColor, URGENCY_COLORS, TIER_COLORS, TIER_NAMES, PHASE_COLORS } from './theme';
 
