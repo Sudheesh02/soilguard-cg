@@ -178,7 +178,7 @@ export default function RankingsSection() {
                             >
                               <p className="eyebrow mb-3" style={{ color: `${uc.text}bb` }}>AGRONOMIC INTERVENTION PACKAGE — {s.name}</p>
                               <div className="space-y-2">
-                                {actions.map((a, ai) => (
+                                {actions.map((a: any, ai: number) => (
                                   <div key={ai} className="flex items-start gap-3">
                                     <span className="font-mono text-[11px] font-bold mt-0.5 shrink-0" style={{ color: uc.text }}>{ai + 1}.</span>
                                     <span className="text-[13px] text-[#8ba3cc] leading-relaxed">{a}</span>
