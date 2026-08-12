@@ -66,9 +66,8 @@ export default function TerminalSection() {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
           <div className="max-w-2xl">
             <p className="eyebrow eyebrow-emerald mb-3">Terminal-Native Reproducibility</p>
-            <h2 className="section-title mb-4">
-              Single Command.<br className="hidden md:block"/>
-              <span className="text-[#10b981]"> Full Pipeline. Offline.</span>
+            <h2 className="section-title mb-4 whitespace-nowrap text-[clamp(1.4rem,3vw,2.4rem)]">
+              Single Command. <span className="text-[#10b981]">Full Pipeline. Offline.</span>
             </h2>
             <p className="section-body">
               The entire SoilGuard-CG pipeline (data loading, spectral index computation, ML training, risk mapping, zonal analytics, and executive report generation) executes from a single terminal command in ~41 seconds with zero internet connectivity.

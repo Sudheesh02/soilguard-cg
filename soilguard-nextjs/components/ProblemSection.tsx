@@ -108,9 +108,8 @@ export default function ProblemSection() {
             <span className="w-2 h-2 rounded-full bg-[#00d4ff] animate-pulse" />
             <p className="eyebrow eyebrow-cyan mb-0">The Agronomic Emergency</p>
           </div>
-          <h2 className="section-title mb-4 text-balance">
-            The Chhattisgarh Topsoil<br className="hidden md:block" />
-            <span className="text-[#ef4444] relative">
+          <h2 className="section-title mb-4 whitespace-nowrap text-[clamp(1.5rem,3.5vw,2.5rem)]">
+            The Chhattisgarh Topsoil <span className="text-[#ef4444] relative inline-block">
                Degradation Crisis
                <svg className="absolute w-full h-3 -bottom-2 left-0 text-[#ef4444] opacity-50" viewBox="0 0 100 10" preserveAspectRatio="none">
                  <path d="M0 5 Q 50 10 100 5" stroke="currentColor" strokeWidth="2" fill="none"/>

@@ -122,9 +122,8 @@ export default function RoadmapSection() {
         <div className="max-w-3xl mb-16 relative">
           <div className="absolute -left-10 top-0 w-[500px] h-[300px] bg-[#00d4ff] opacity-[0.02] rounded-full blur-[100px] pointer-events-none" />
           <p className="eyebrow eyebrow-cyan mb-4">Impact & Development Roadmap</p>
-          <h2 className="section-title mb-5">
-            From Pilot to<br className="hidden md:block"/>
-            <span className="text-[#00d4ff]"> State-Scale Intelligence</span>
+          <h2 className="section-title mb-5 whitespace-nowrap text-[clamp(1.5rem,3.5vw,2.5rem)]">
+            From Pilot to <span className="text-[#00d4ff]">State-Scale Intelligence</span>
           </h2>
           <p className="section-body max-w-xl text-balance">
             SoilGuard-CG v1.0 demonstrates technical feasibility for satellite-driven soil risk mapping at district scale. The roadmap targets full Chhattisgarh coverage and integration with national agricultural monitoring programmes.

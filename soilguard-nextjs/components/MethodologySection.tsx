@@ -59,9 +59,8 @@ export default function MethodologySection() {
         {/* Header */}
         <div className="max-w-3xl mb-16">
           <p className="eyebrow eyebrow-violet mb-4">Scientific Credibility</p>
-          <h2 className="section-title mb-5">
-            Methodology &amp; <br className="hidden md:block"/>
-            <span className="text-[#818cf8]"> Analytical Rigour</span>
+          <h2 className="section-title mb-5 whitespace-nowrap text-[clamp(1.5rem,3.5vw,2.5rem)]">
+            Methodology &amp; <span className="text-[#818cf8]">Analytical Rigour</span>
           </h2>
           <p className="section-body max-w-xl">
             Full transparency on feature engineering, model performance, thresholds, and the scientific assumptions underlying SoilGuard-CG.
