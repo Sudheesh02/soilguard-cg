@@ -37,3 +37,7 @@ Thumbs.db
 .idea/
 .claude/
 *.log
+
+# Hide Study Pack
+ideathon-study-pack/
+
