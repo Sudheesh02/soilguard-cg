@@ -1,10 +1,9 @@
 /**
  * Canonical dataset surface for SoilGuard Full-Stack Platform.
  */
-import { ALL_SECTORS, MAPS, METRICS } from './site-data';
+import { SECTORS, MAPS, METRICS } from './site-data';
 
-export { MAPS, METRICS, ALL_SECTORS };
-export const SECTORS = ALL_SECTORS;
+export { SECTORS, MAPS, METRICS };
 
 export const STATS = {
   totalAreaHa: METRICS.bareSoilHa,
@@ -20,6 +19,11 @@ export const STATS = {
   criticalSectors: 2,
   moderateSectors: 15,
   stableSectors: 8,
+  criticalCount: 2,
+  moderateCount: 15,
+  stableCount: 8,
+  avgSOC: 11.8,
+  totalHighRiskHa: 1685.2,
   runtimeSec: METRICS.runtimeSec,
   processingTimeSec: METRICS.runtimeSec,
   bareSoilHa: METRICS.bareSoilHa,

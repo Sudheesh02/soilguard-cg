@@ -83,7 +83,18 @@ export default function RecommendationsPage() {
                       ))}
                     </div>
                     <div className="space-y-2">
-                      {s.recommendations.map((r: any, i: number) => (
+                      {((s.recommendations && s.recommendations.length > 0)
+                        ? s.recommendations
+                        : [
+                            s.urgency === 'CRITICAL'
+                              ? "Apply 8–10 t/ha FYM or 3 t/ha Biochar"
+                              : s.urgency === 'MODERATE'
+                              ? "Apply 5–7 t/ha FYM; Green manuring pre-Kharif"
+                              : "Maintain residue cover; zero-tillage post-harvest",
+                            "Green manuring: Dhaincha / Sunn hemp incorporate before paddy sowing",
+                            "Soil moisture buffering & balanced NPK application"
+                          ]
+                      ).map((r: any, i: number) => (
                         <div key={i} className="flex gap-2 items-start">
                           <span className="font-mono-data text-[9px] font-bold shrink-0 mt-1" style={{ color: c.text }}>{i + 1}.</span>
                           <span className="text-[11px] text-[#5e7aa8] leading-snug">{r}</span>

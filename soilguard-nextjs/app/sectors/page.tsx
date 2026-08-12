@@ -11,9 +11,9 @@ type Filter = 'all' | 'critical' | 'moderate' | 'stable';
 
 const FILTERS: { key: Filter; label: string; count: number }[] = [
   { key: 'all',      label: 'All Sectors', count: 25 },
-  { key: 'critical', label: 'Critical',    count: SECTORS.filter(s => s.tier === 1).length },
-  { key: 'moderate', label: 'Moderate',    count: SECTORS.filter(s => s.tier === 2).length },
-  { key: 'stable',   label: 'Stable',      count: SECTORS.filter(s => s.tier === 3).length },
+  { key: 'critical', label: 'Critical',    count: SECTORS.filter((s: any) => s.tier === 1).length },
+  { key: 'moderate', label: 'Moderate',    count: SECTORS.filter((s: any) => s.tier === 2).length },
+  { key: 'stable',   label: 'Stable',      count: SECTORS.filter((s: any) => s.tier === 3).length },
 ];
 
 export default function SectorsPage() {

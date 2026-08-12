@@ -16,11 +16,12 @@ export interface Sector {
   ph: number;
   urgency: Urgency;
   tier: Tier;
-  gridId: string;
   block: string;
+  gridId: string;
+  recommendations: string[];
 }
 
-export const ALL_SECTORS: Sector[] = [
+export const SECTORS: Sector[] = [
   {
     "rank": 1,
     "name": "Arang (B-1)",
@@ -34,7 +35,12 @@ export const ALL_SECTORS: Sector[] = [
     "pct": 75.31,
     "soc": 12.02,
     "bsi": 0.1017,
-    "ph": 0.64
+    "ph": 0.64,
+    "recommendations": [
+      "Apply 8–10 t/ha FYM or 3 t/ha Biochar",
+      "Green manuring: Dhaincha/Sunnhemp pre-Kharif",
+      "Agricultural Lime @ 2.5 t/ha (pH < 1)"
+    ]
   },
   {
     "rank": 2,
@@ -49,7 +55,12 @@ export const ALL_SECTORS: Sector[] = [
     "pct": 71.78,
     "soc": 22.74,
     "bsi": 0.125,
-    "ph": 1.24
+    "ph": 1.24,
+    "recommendations": [
+      "Apply 8–10 t/ha FYM or 3 t/ha Biochar",
+      "Green manuring: Dhaincha/Sunnhemp pre-Kharif",
+      "Rotate with Pigeonpea for N-fixation"
+    ]
   },
   {
     "rank": 3,
@@ -64,7 +75,12 @@ export const ALL_SECTORS: Sector[] = [
     "pct": 64.14,
     "soc": 7.94,
     "bsi": 0.1078,
-    "ph": 0.43
+    "ph": 0.43,
+    "recommendations": [
+      "Apply 5 t/ha FYM + crop residue incorporation",
+      "Agricultural Lime @ 2.0 t/ha",
+      "INM: 75% RDF + 25% organic manure"
+    ]
   },
   {
     "rank": 4,
@@ -79,7 +95,12 @@ export const ALL_SECTORS: Sector[] = [
     "pct": 54.83,
     "soc": 67.95,
     "bsi": 0.0567,
-    "ph": 3.69
+    "ph": 3.69,
+    "recommendations": [
+      "INM: 75% RDF + 25% organic manure",
+      "Zero-tillage + paddy straw mulching (3–4 t/ha)",
+      "Legume cover crop rotation"
+    ]
   },
   {
     "rank": 5,
@@ -94,7 +115,12 @@ export const ALL_SECTORS: Sector[] = [
     "pct": 25.99,
     "soc": 99.76,
     "bsi": 0.1093,
-    "ph": 4.83
+    "ph": 4.83,
+    "recommendations": [
+      "Moderate: 5 t/ha FYM + balanced NPK",
+      "Surface mulching to preserve topsoil moisture",
+      "INM stewardship package"
+    ]
   },
   {
     "rank": 6,
@@ -109,7 +135,12 @@ export const ALL_SECTORS: Sector[] = [
     "pct": 18.35,
     "soc": 115.18,
     "bsi": 0.1394,
-    "ph": 5.91
+    "ph": 5.91,
+    "recommendations": [
+      "5 t/ha FYM + balanced NPK (120:60:60)",
+      "Zero-tillage with paddy straw retention",
+      "Gypsum @ 250 kg/ha for sub-soil compaction"
+    ]
   },
   {
     "rank": 7,
@@ -124,7 +155,12 @@ export const ALL_SECTORS: Sector[] = [
     "pct": 21.13,
     "soc": 113.82,
     "bsi": 0.1513,
-    "ph": 5.31
+    "ph": 5.31,
+    "recommendations": [
+      "Moderate organic input: 5 t/ha compost",
+      "Micro-nutrient: ZnSO4 @ 25 kg/ha",
+      "Soil moisture conservation by contour bunding"
+    ]
   },
   {
     "rank": 8,
@@ -139,7 +175,12 @@ export const ALL_SECTORS: Sector[] = [
     "pct": 13.78,
     "soc": 120.32,
     "bsi": 0.1428,
-    "ph": 6.35
+    "ph": 6.35,
+    "recommendations": [
+      "4 t/ha FYM + crop residue mulching",
+      "INM package: 50% NPK + 50% organic",
+      "Soybean/Pigeonpea intercropping rotation"
+    ]
   },
   {
     "rank": 9,
@@ -154,7 +195,12 @@ export const ALL_SECTORS: Sector[] = [
     "pct": 9.36,
     "soc": 143.46,
     "bsi": 0.205,
-    "ph": 6.57
+    "ph": 6.57,
+    "recommendations": [
+      "Maintain current SOC with crop residue retention",
+      "Green manure: Sesbania incorporation",
+      "Balanced NPK with micronutrient management"
+    ]
   },
   {
     "rank": 10,
@@ -169,7 +215,12 @@ export const ALL_SECTORS: Sector[] = [
     "pct": 7.24,
     "soc": 113.67,
     "bsi": 0.2468,
-    "ph": 5.9
+    "ph": 5.9,
+    "recommendations": [
+      "3 t/ha FYM + residue incorporation",
+      "Zinc sulphate @ 25 kg/ha",
+      "SRI method for paddy to reduce water stress"
+    ]
   },
   {
     "rank": 11,
@@ -184,7 +235,12 @@ export const ALL_SECTORS: Sector[] = [
     "pct": 3.79,
     "soc": 130.63,
     "bsi": 0.2319,
-    "ph": 6.89
+    "ph": 6.89,
+    "recommendations": [
+      "Maintenance dose: 3 t/ha vermicompost",
+      "Crop diversification from paddy monoculture",
+      "Precision irrigation to limit soil crusting"
+    ]
   },
   {
     "rank": 12,
@@ -199,7 +255,12 @@ export const ALL_SECTORS: Sector[] = [
     "pct": 7.94,
     "soc": 129.1,
     "bsi": 0.168,
-    "ph": 6.57
+    "ph": 6.57,
+    "recommendations": [
+      "3 t/ha FYM compost application",
+      "Multi-cropping: Kharif paddy + Rabi mustard/gram",
+      "Organic carbon enrichment via coirpith compost"
+    ]
   },
   {
     "rank": 13,
@@ -214,7 +275,12 @@ export const ALL_SECTORS: Sector[] = [
     "pct": 5.48,
     "soc": 122.18,
     "bsi": 0.2123,
-    "ph": 6.84
+    "ph": 6.84,
+    "recommendations": [
+      "3 t/ha compost + micro-nutrient mixture",
+      "Cover crops during fallow: Cowpea/Horsegram",
+      "Weed management to reduce bare soil exposure"
+    ]
   },
   {
     "rank": 14,
@@ -229,7 +295,12 @@ export const ALL_SECTORS: Sector[] = [
     "pct": 4.67,
     "soc": 134.98,
     "bsi": 0.1988,
-    "ph": 6.83
+    "ph": 6.83,
+    "recommendations": [
+      "2.5 t/ha vermicompost maintenance dose",
+      "Soil test-based fertiliser application",
+      "Zero-till direct seeded rice to conserve SOC"
+    ]
   },
   {
     "rank": 15,
@@ -244,7 +315,12 @@ export const ALL_SECTORS: Sector[] = [
     "pct": 5.37,
     "soc": 117.94,
     "bsi": 0.2373,
-    "ph": 6.3
+    "ph": 6.3,
+    "recommendations": [
+      "3 t/ha FYM + neem cake application",
+      "Alternate wetting and drying (AWD) irrigation",
+      "Crop rotation with N-fixing legumes"
+    ]
   },
   {
     "rank": 16,
@@ -259,7 +335,12 @@ export const ALL_SECTORS: Sector[] = [
     "pct": 2.86,
     "soc": 120.48,
     "bsi": 0.2197,
-    "ph": 6.71
+    "ph": 6.71,
+    "recommendations": [
+      "Maintenance: 2 t/ha compost annually",
+      "Balanced NPK: 100:50:50 kg/ha",
+      "Crop residue incorporation instead of burning"
+    ]
   },
   {
     "rank": 17,
@@ -274,7 +355,12 @@ export const ALL_SECTORS: Sector[] = [
     "pct": 4.67,
     "soc": 130.84,
     "bsi": 0.2411,
-    "ph": 6.98
+    "ph": 6.98,
+    "recommendations": [
+      "Preventive: 2 t/ha FYM annually",
+      "Promote SRI cultivation method",
+      "Agroforestry boundaries to check wind erosion"
+    ]
   },
   {
     "rank": 18,
@@ -289,7 +375,12 @@ export const ALL_SECTORS: Sector[] = [
     "pct": 2.73,
     "soc": 139.13,
     "bsi": 0.2149,
-    "ph": 7.03
+    "ph": 7.03,
+    "recommendations": [
+      "Continue current practices",
+      "Annual soil health monitoring",
+      "Crop residue management for SOC maintenance"
+    ]
   },
   {
     "rank": 19,
@@ -304,7 +395,12 @@ export const ALL_SECTORS: Sector[] = [
     "pct": 1.75,
     "soc": 148.99,
     "bsi": 0.2273,
-    "ph": 6.9
+    "ph": 6.9,
+    "recommendations": [
+      "Preventive maintenance: 1.5 t/ha compost",
+      "Monitor for pest/disease stress",
+      "Precision fertiliser application"
+    ]
   },
   {
     "rank": 20,
@@ -319,7 +415,12 @@ export const ALL_SECTORS: Sector[] = [
     "pct": 2.63,
     "soc": 152.46,
     "bsi": 0.1524,
-    "ph": 7.13
+    "ph": 7.13,
+    "recommendations": [
+      "Stable zone: routine monitoring",
+      "Balanced NPK with soil test basis",
+      "Biodiversity conservation in field margins"
+    ]
   },
   {
     "rank": 21,
@@ -334,7 +435,12 @@ export const ALL_SECTORS: Sector[] = [
     "pct": 8.58,
     "soc": 153.68,
     "bsi": 0.1202,
-    "ph": 6.97
+    "ph": 6.97,
+    "recommendations": [
+      "Stable zone: maintain organic inputs",
+      "Water harvesting structures for drought resilience",
+      "Monitor BSI quarterly for early warning"
+    ]
   },
   {
     "rank": 22,
@@ -349,7 +455,12 @@ export const ALL_SECTORS: Sector[] = [
     "pct": 2.45,
     "soc": 151.27,
     "bsi": 0.2064,
-    "ph": 7.05
+    "ph": 7.05,
+    "recommendations": [
+      "Stable: Continue good agronomic practices",
+      "Micronutrient monitoring: Zn, Fe, Mn",
+      "Contour farming to prevent runoff"
+    ]
   },
   {
     "rank": 23,
@@ -364,7 +475,12 @@ export const ALL_SECTORS: Sector[] = [
     "pct": 3.92,
     "soc": 148.69,
     "bsi": 0.1799,
-    "ph": 6.99
+    "ph": 6.99,
+    "recommendations": [
+      "Stable: Annual organic matter replenishment",
+      "Soil biological activity promotion",
+      "Conservation agriculture principles"
+    ]
   },
   {
     "rank": 24,
@@ -379,7 +495,12 @@ export const ALL_SECTORS: Sector[] = [
     "pct": 1.57,
     "soc": 172.42,
     "bsi": 0.2385,
-    "ph": 7.01
+    "ph": 7.01,
+    "recommendations": [
+      "Best-performing zone: document practices",
+      "Share practices with adjacent high-risk sectors",
+      "Long-term agroforestry integration"
+    ]
   },
   {
     "rank": 25,
@@ -394,136 +515,55 @@ export const ALL_SECTORS: Sector[] = [
     "pct": 1.29,
     "soc": 160.79,
     "bsi": 0.1915,
-    "ph": 7.12
+    "ph": 7.12,
+    "recommendations": [
+      "Lowest risk: Model farm potential",
+      "Carbon sequestration monitoring",
+      "Demonstrate regenerative practices"
+    ]
   }
 ];
 
-export const TOP_ACTIONS: Record<string, string[]> = {
-  "Arang (B-1)": [
-    "Apply 8–10 t/ha FYM or 3 t/ha Biochar",
-    "Green manuring: Dhaincha/Sunnhemp pre-Kharif",
-    "Agricultural Lime @ 2.5 t/ha (pH < 1)"
-  ],
-  "Abhanpur (A-1)": [
-    "Apply 8–10 t/ha FYM or 3 t/ha Biochar",
-    "Green manuring: Dhaincha/Sunnhemp pre-Kharif",
-    "Rotate with Pigeonpea for N-fixation"
-  ],
-  "Arang (B-2)": [
-    "Apply 5 t/ha FYM + crop residue incorporation",
-    "Agricultural Lime @ 2.0 t/ha",
-    "INM: 75% RDF + 25% organic manure"
-  ],
-  "Abhanpur (A-2)": [
-    "INM: 75% RDF + 25% organic manure",
-    "Zero-tillage + paddy straw mulching (3–4 t/ha)",
-    "Legume cover crop rotation"
-  ],
-  "Raipur Rural (C-1)": [
-    "Moderate: 5 t/ha FYM + balanced NPK",
-    "Surface mulching to preserve topsoil moisture",
-    "INM stewardship package"
-  ],
-  "Abhanpur (A-3)": [
-    "5 t/ha FYM + balanced NPK (120:60:60)",
-    "Zero-tillage with paddy straw retention",
-    "Gypsum @ 250 kg/ha for sub-soil compaction"
-  ],
-  "Raipur Rural (C-2)": [
-    "Moderate organic input: 5 t/ha compost",
-    "Micro-nutrient: ZnSO4 @ 25 kg/ha",
-    "Soil moisture conservation by contour bunding"
-  ],
-  "Arang (B-3)": [
-    "4 t/ha FYM + crop residue mulching",
-    "INM package: 50% NPK + 50% organic",
-    "Soybean/Pigeonpea intercropping rotation"
-  ],
-  "Arang (B-4)": [
-    "Maintain current SOC with crop residue retention",
-    "Green manure: Sesbania incorporation",
-    "Balanced NPK with micronutrient management"
-  ],
-  "Arang (B-5)": [
-    "3 t/ha FYM + residue incorporation",
-    "Zinc sulphate @ 25 kg/ha",
-    "SRI method for paddy to reduce water stress"
-  ],
-  "Raipur Rural (C-4)": [
-    "Maintenance dose: 3 t/ha vermicompost",
-    "Crop diversification from paddy monoculture",
-    "Precision irrigation to limit soil crusting"
-  ],
-  "Raipur Rural (C-3)": [
-    "3 t/ha FYM compost application",
-    "Multi-cropping: Kharif paddy + Rabi mustard/gram",
-    "Organic carbon enrichment via coirpith compost"
-  ],
-  "Abhanpur (A-4)": [
-    "3 t/ha compost + micro-nutrient mixture",
-    "Cover crops during fallow: Cowpea/Horsegram",
-    "Weed management to reduce bare soil exposure"
-  ],
-  "Dharsiwa (D-5)": [
-    "2.5 t/ha vermicompost maintenance dose",
-    "Soil test-based fertiliser application",
-    "Zero-till direct seeded rice to conserve SOC"
-  ],
-  "Abhanpur (A-5)": [
-    "3 t/ha FYM + neem cake application",
-    "Alternate wetting and drying (AWD) irrigation",
-    "Crop rotation with N-fixing legumes"
-  ],
-  "Tilda (E-5)": [
-    "Maintenance: 2 t/ha compost annually",
-    "Balanced NPK: 100:50:50 kg/ha",
-    "Crop residue incorporation instead of burning"
-  ],
-  "Raipur Rural (C-5)": [
-    "Preventive: 2 t/ha FYM annually",
-    "Promote SRI cultivation method",
-    "Agroforestry boundaries to check wind erosion"
-  ],
-  "Dharsiwa (D-4)": [
-    "Continue current practices",
-    "Annual soil health monitoring",
-    "Crop residue management for SOC maintenance"
-  ],
-  "Tilda (E-4)": [
-    "Preventive maintenance: 1.5 t/ha compost",
-    "Monitor for pest/disease stress",
-    "Precision fertiliser application"
-  ],
-  "Dharsiwa (D-2)": [
-    "Stable zone: routine monitoring",
-    "Balanced NPK with soil test basis",
-    "Biodiversity conservation in field margins"
-  ],
-  "Dharsiwa (D-1)": [
-    "Stable zone: maintain organic inputs",
-    "Water harvesting structures for drought resilience",
-    "Monitor BSI quarterly for early warning"
-  ],
-  "Dharsiwa (D-3)": [
-    "Stable: Continue good agronomic practices",
-    "Micronutrient monitoring: Zn, Fe, Mn",
-    "Contour farming to prevent runoff"
-  ],
-  "Tilda (E-1)": [
-    "Stable: Annual organic matter replenishment",
-    "Soil biological activity promotion",
-    "Conservation agriculture principles"
-  ],
-  "Tilda (E-3)": [
-    "Best-performing zone: document practices",
-    "Share practices with adjacent high-risk sectors",
-    "Long-term agroforestry integration"
-  ],
-  "Tilda (E-2)": [
-    "Lowest risk: Model farm potential",
-    "Carbon sequestration monitoring",
-    "Demonstrate regenerative practices"
-  ]
+export const METRICS = {
+  "source": "soilguard-cg/outputs/golden_backup/risk_summary_stats.csv",
+  "r2": 0.4486,
+  "rmse": 0.1132,
+  "runtimeSec": 41.03,
+  "totalAoiHa": 46371.78,
+  "bareSoilHa": 22702.47,
+  "bareSoilPct": 48.96,
+  "meanRisk": 0.4902,
+  "medianRisk": 0.4568,
+  "stdRisk": 0.1046,
+  "lowRiskHa": 10468.73,
+  "moderateRiskHa": 7792.74,
+  "highRiskHa": 4441,
+  "lowRiskPct": 46.11,
+  "moderateRiskPct": 34.33,
+  "highRiskPct": 19.56,
+  "lowCutoff": 0.45,
+  "highCutoff": 0.58,
+  "resolution": "10m",
+  "model": "Random Forest (150 trees)",
+  "aoi": "Raipur–Durg Agricultural Belt",
+  "totalSectors": 25
+};
+
+export const STATS = {
+  totalAreaHa: METRICS.totalAoiHa,
+  totalSectors: SECTORS.length,
+  criticalCount: SECTORS.filter((s) => s.tier === 1).length,
+  moderateCount: SECTORS.filter((s) => s.tier === 2).length,
+  stableCount: SECTORS.filter((s) => s.tier === 3).length,
+  avgRisk: +(SECTORS.reduce((a, s) => a + s.risk, 0) / SECTORS.length).toFixed(4),
+  avgSOC: +(SECTORS.reduce((a, s) => a + s.soc, 0) / SECTORS.length).toFixed(1),
+  totalBareHa: +22702.6,
+  totalHighRiskHa: +3989.7,
+  r2: METRICS.r2,
+  rmse: METRICS.rmse,
+  processingTimeSec: METRICS.runtimeSec,
+  resolution: METRICS.resolution,
+  aoi: METRICS.aoi,
 };
 
 export const MAPS = [
@@ -620,27 +660,4 @@ export const MAPS = [
   }
 ];
 
-export const METRICS = {
-  "source": "soilguard-cg/outputs/golden_backup/risk_summary_stats.csv",
-  "r2": 0.4486,
-  "rmse": 0.1132,
-  "runtimeSec": 41.03,
-  "totalAoiHa": 46371.78,
-  "bareSoilHa": 22702.47,
-  "bareSoilPct": 48.96,
-  "meanRisk": 0.4902,
-  "medianRisk": 0.4568,
-  "stdRisk": 0.1046,
-  "lowRiskHa": 10468.73,
-  "moderateRiskHa": 7792.74,
-  "highRiskHa": 4441,
-  "lowRiskPct": 46.11,
-  "moderateRiskPct": 34.33,
-  "highRiskPct": 19.56,
-  "lowCutoff": 0.45,
-  "highCutoff": 0.58,
-  "resolution": "10m",
-  "model": "Random Forest (150 trees)",
-  "aoi": "Raipur–Durg Agricultural Belt",
-  "totalSectors": 25
-};
+export const BLOCKS = ['Abhanpur', 'Arang', 'Raipur Rural', 'Dharsiwa', 'Tilda'];
