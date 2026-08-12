@@ -150,8 +150,6 @@ export default function HeroSection({ onOpenLightbox }: Props) {
 
           {/* Left: Text */}
           <div className="lg:col-span-6 z-10">
-            <div className="eyebrow eyebrow-cyan mb-4 stagger-1">Chhattisgarh Soil Carbon Sentinel</div>
-
             <h1 style={{ fontFamily: "'Space Grotesk', sans-serif" }} className="text-[clamp(2.2rem,5vw,4.5rem)] font-extrabold text-[#e2ecff] leading-[1.05] tracking-tight mb-5 stagger-2 whitespace-nowrap">
               Soil<span className="text-[#00d4ff]" style={{ textShadow: '0 0 50px rgba(0,212,255,0.4)' }}>Guard</span><span className="text-[#10b981]">-SOC</span>
             </h1>
