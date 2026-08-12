@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { Clock, Satellite, Bell, ChevronRight } from 'lucide-react';
+import { Clock, Satellite, Bell, ChevronRight, Sun, Moon } from 'lucide-react';
 import Link from 'next/link';
 
 interface TopbarProps {
@@ -11,8 +11,14 @@ interface TopbarProps {
 export default function Topbar({ title, subtitle }: TopbarProps) {
   const [time, setTime] = useState<string>('');
   const [scrolled, setScrolled] = useState(false);
+  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
 
   useEffect(() => {
+    // Theme sync
+    const saved = (localStorage.getItem('soilguard-theme') as 'dark' | 'light') || 'dark';
+    setTheme(saved);
+    document.documentElement.classList.toggle('light', saved === 'light');
+
     // Clock
     const updateTime = () => {
       const now = new Date();
@@ -32,6 +38,13 @@ export default function Topbar({ title, subtitle }: TopbarProps) {
       window.removeEventListener('scroll', handleScroll);
     };
   }, []);
+
+  const toggleTheme = () => {
+    const next = theme === 'dark' ? 'light' : 'dark';
+    setTheme(next);
+    localStorage.setItem('soilguard-theme', next);
+    document.documentElement.classList.toggle('light', next === 'light');
+  };
 
   return (
     <header className={`sticky top-0 z-40 transition-all duration-300 ${
@@ -70,6 +83,16 @@ export default function Topbar({ title, subtitle }: TopbarProps) {
           </div>
           
           <div className="w-[1px] h-6 bg-white/[0.1] mx-1" />
+          
+          {/* Theme Toggle (Light / Dark) */}
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-xl border border-white/[0.1] bg-white/[0.03] hover:bg-white/[0.08] text-[#8ba3cc] hover:text-white transition-all flex items-center gap-1.5 text-xs font-mono-data"
+            title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} mode`}
+          >
+            {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-indigo-400" />}
+            <span className="capitalize">{theme}</span>
+          </button>
           
           {/* Notification Bell */}
           <button className="relative p-2 rounded-full hover:bg-white/[0.05] text-[#5e7aa8] hover:text-white transition-colors">

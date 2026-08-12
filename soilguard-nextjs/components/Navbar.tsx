@@ -16,8 +16,14 @@ export default function Navbar() {
   const [open, setOpen]         = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [activeSection, setActiveSection] = useState('');
+  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
 
   useEffect(() => {
+    // Theme sync
+    const saved = (localStorage.getItem('soilguard-theme') as 'dark' | 'light') || 'dark';
+    setTheme(saved);
+    document.documentElement.classList.toggle('light', saved === 'light');
+
     const handler = () => {
       setScrolled(window.scrollY > 24);
       
@@ -48,6 +54,13 @@ export default function Navbar() {
       observer.disconnect();
     };
   }, []);
+
+  const toggleTheme = () => {
+    const next = theme === 'dark' ? 'light' : 'dark';
+    setTheme(next);
+    localStorage.setItem('soilguard-theme', next);
+    document.documentElement.classList.toggle('light', next === 'light');
+  };
 
   const scrollTo = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
@@ -103,8 +116,17 @@ export default function Navbar() {
             ))}
           </div>
 
-          {/* Dashboard Link + mobile toggle */}
+          {/* Theme Toggle + Dashboard Link + mobile toggle */}
           <div className="flex items-center gap-3">
+            <button
+              onClick={toggleTheme}
+              className="p-1.5 px-2.5 rounded-lg border border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.04)] text-[#8ba3cc] hover:text-white transition-all flex items-center gap-1.5 text-xs font-mono"
+              title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} mode`}
+            >
+              {theme === 'dark' ? '☀️' : '🌙'}
+              <span className="capitalize">{theme}</span>
+            </button>
+
             <a
               href="http://localhost:3001"
               target="_blank"

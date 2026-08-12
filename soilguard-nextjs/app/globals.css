@@ -10,11 +10,13 @@
 :root {
   --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
-  --bg: #06090f;
-  --s1: #0a0f1a;
-  --s2: #0e1522;
-  --s3: #12192c;
-  --s4: #192035;
+  --bg: #090d16;
+  --s1: #0e1424;
+  --s2: #121a2d;
+  --s3: #18233c;
+  --s4: #1f2d4d;
+  --text-main: #e2ecff;
+  --text-sub: #8ba3cc;
   --b0: rgba(255,255,255,0.03);
   --b1: rgba(255,255,255,0.07);
   --b2: rgba(255,255,255,0.12);
@@ -24,6 +26,54 @@
   --amber: #f59e0b;
   --red: #ef4444;
   --violet: #818cf8;
+}
+
+html.light {
+  --bg: #f8fafc;
+  --s1: #ffffff;
+  --s2: #f1f5f9;
+  --s3: #e2e8f0;
+  --s4: #cbd5e1;
+  --text-main: #0f172a;
+  --text-sub: #475569;
+  --b0: rgba(0,0,0,0.04);
+  --b1: rgba(0,0,0,0.08);
+  --b2: rgba(0,0,0,0.14);
+  --b3: rgba(0,0,0,0.22);
+}
+
+html.light body {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+html.light .card, html.light .stat-card {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05) !important;
+}
+
+html.light .section-title {
+  color: #0f172a !important;
+}
+
+html.light .section-body, html.light p {
+  color: #475569 !important;
+}
+
+html.light nav {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+html.light .nav-link {
+  color: #475569 !important;
+}
+
+html.light .nav-link:hover {
+  color: #0f172a !important;
 }
 
 /* ═══════════════════════════════════════

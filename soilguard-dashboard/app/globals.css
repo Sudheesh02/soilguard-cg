@@ -9,18 +9,70 @@
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
   body {
-    background-color: #060a0f;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+    background-color: #080d16;
     color: #dce8ff;
     font-family: 'Inter', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
+  }
+
+  /* LIGHT MODE THEME ENGINE */
+  html.light {
+    color-scheme: light;
+  }
+  html.light body {
+    background-color: #f8fafc;
+    color: #0f172a;
+    background-image: none;
+  }
+  html.light .card {
+    background: #ffffff !important;
+    border-color: #e2e8f0 !important;
+    color: #0f172a !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05) !important;
+  }
+  html.light .card:hover {
+    border-color: #cbd5e1 !important;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.08) !important;
+  }
+  html.light header {
+    background: rgba(255, 255, 255, 0.95) !important;
+    border-color: #e2e8f0 !important;
+    color: #0f172a !important;
+  }
+  html.light aside {
+    background: #ffffff !important;
+    border-color: #e2e8f0 !important;
+  }
+  html.light h1, html.light h2, html.light h3, html.light h4, html.light h5 {
+    color: #0f172a !important;
+  }
+  html.light p {
+    color: #475569 !important;
+  }
+  html.light table {
+    background: #ffffff !important;
+  }
+  html.light table th {
+    background-color: #f1f5f9 !important;
+    color: #475569 !important;
+    border-color: #e2e8f0 !important;
+  }
+  html.light table td {
+    border-color: #f1f5f9 !important;
+    color: #1e293b !important;
+  }
+  html.light table tr:hover {
+    background-color: #f8fafc !important;
+  }
+  html.light .font-mono-data {
+    color: #334155;
   }
   
   /* Refined scrollbar styling */
   ::-webkit-scrollbar { width: 6px; height: 6px; }
   ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
-  ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
+  ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 10px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.3); }
 
   /* Premium focus ring styles */
   *:focus-visible {

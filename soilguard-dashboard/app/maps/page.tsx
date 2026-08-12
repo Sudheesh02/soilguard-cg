@@ -1,45 +1,56 @@
 'use client';
+import { useState } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import Topbar from '@/components/layout/Topbar';
 import { MAPS } from '@/lib/data';
 import { PHASE_COLORS } from '@/lib/theme';
-import { Image as ImageIcon, Info } from 'lucide-react';
+import { Image as ImageIcon, Download, X, Maximize2 } from 'lucide-react';
+
+interface MapItem {
+  id: string;
+  title: string;
+  desc: string;
+  phase: string;
+  file: string;
+  subtitle?: string;
+  badge?: string;
+  badgeText?: string;
+  caption?: string;
+  crs?: string;
+}
 
 export default function MapsPage() {
+  const [selectedMap, setSelectedMap] = useState<MapItem | null>(null);
+
   return (
     <DashboardLayout>
       <Topbar title="Analysis Maps" subtitle="Satellite-derived geospatial outputs · 10m resolution · Sentinel-2 L2A" />
       <div className="p-6 animate-fade-in">
 
-        <div className="card px-5 py-3 flex items-start gap-3 mb-6 border-[rgba(0,212,255,0.15)] bg-[rgba(0,212,255,0.04)]">
-          <Info className="w-4 h-4 text-[#00d4ff] shrink-0 mt-0.5" />
-          <p className="text-[12px] text-[#8ba3cc] leading-relaxed">
-            Place PNG map files from <code className="font-mono-data text-[#00d4ff] text-[11px] bg-[rgba(0,212,255,0.08)] px-1.5 py-0.5 rounded">soilguard-cg/outputs/</code> into{' '}
-            <code className="font-mono-data text-[#00d4ff] text-[11px] bg-[rgba(0,212,255,0.08)] px-1.5 py-0.5 rounded">soilguard-dashboard/public/maps/</code> to display them here.
-          </p>
-        </div>
-
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-          {MAPS.map(m => {
+          {MAPS.map((m: any) => {
             const phaseColor = PHASE_COLORS[m.phase] ?? '#818cf8';
             return (
-              <div key={m.id} className="card overflow-hidden group hover:scale-[1.01] transition-transform duration-200"
-                style={{ boxShadow: `0 4px 24px rgba(0,0,0,0.3)` }}>
+              <div 
+                key={m.id} 
+                onClick={() => setSelectedMap(m)}
+                className="card overflow-hidden group hover:scale-[1.01] transition-transform duration-200 cursor-pointer relative"
+                style={{ boxShadow: `0 4px 24px rgba(0,0,0,0.3)` }}
+              >
                 <div className="aspect-video bg-[#0a0f18] border-b border-white/[0.06] flex items-center justify-center relative overflow-hidden">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={`/maps/${m.file}`}
                     alt={m.title}
-                    className="w-full h-full object-cover"
-                    onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  <div className="absolute inset-0 flex items-center justify-center flex-col gap-2 opacity-100 group-[img:not([style*='none'])]:opacity-0">
-                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center"
-                      style={{ background: `${phaseColor}18`, border: `1px solid ${phaseColor}30` }}>
-                      <ImageIcon className="w-5 h-5" style={{ color: phaseColor }} />
-                    </div>
-                    <p className="font-mono-data text-[10px] text-[#3d5a80]">{m.file}</p>
+                  
+                  {/* Hover Lightbox Indicator */}
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 text-white font-mono-data text-xs">
+                    <Maximize2 className="w-5 h-5 text-[#00d4ff]" />
+                    <span>View Map Lightbox</span>
                   </div>
+
                   <div className="absolute top-3 left-3">
                     <span className="font-mono-data text-[9px] font-semibold px-2 py-1 rounded-lg tracking-widest"
                       style={{ background: `${phaseColor}20`, color: phaseColor, border: `1px solid ${phaseColor}35` }}>
@@ -47,9 +58,13 @@ export default function MapsPage() {
                     </span>
                   </div>
                 </div>
+
                 <div className="p-4">
-                  <h3 className="font-display font-semibold text-white text-[14px] mb-1.5">{m.title}</h3>
-                  <p className="text-[12px] text-[#5e7aa8] leading-relaxed">{m.desc}</p>
+                  <h3 className="font-display font-semibold text-white text-[14px] mb-1.5 flex items-center justify-between">
+                    <span>{m.title}</span>
+                    <span className="text-[10px] text-[#00d4ff] font-mono-data opacity-0 group-hover:opacity-100 transition-opacity">Expand ↗</span>
+                  </h3>
+                  <p className="text-[12px] text-[#5e7aa8] leading-relaxed line-clamp-2">{m.desc}</p>
                   <p className="font-mono-data text-[10px] text-[#3d5a80] mt-2">{m.file}</p>
                 </div>
               </div>
@@ -57,6 +72,7 @@ export default function MapsPage() {
           })}
         </div>
 
+        {/* Pipeline Phases Reference */}
         <div className="mt-8 card p-5">
           <h3 className="font-display font-semibold text-white text-[15px] mb-4">Pipeline Phases</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -77,6 +93,64 @@ export default function MapsPage() {
         </div>
 
       </div>
+
+      {/* FULLSCREEN LIGHTBOX MODAL */}
+      {selectedMap && (
+        <div 
+          className="fixed inset-0 z-50 bg-black/90 backdrop-blur-xl flex items-center justify-center p-4 sm:p-8 animate-fade-in"
+          onClick={() => setSelectedMap(null)}
+        >
+          <div 
+            className="card max-w-5xl w-full max-h-[90vh] flex flex-col overflow-hidden bg-[#0c1018] border-white/10 shadow-2xl relative"
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between bg-[#080d14]">
+              <div>
+                <span className="font-mono-data text-[10px] text-[#00d4ff] font-semibold tracking-wider uppercase">
+                  {selectedMap.phase} · {selectedMap.crs || 'EPSG:32644'}
+                </span>
+                <h2 className="font-display text-lg font-bold text-white leading-tight mt-0.5">{selectedMap.title}</h2>
+              </div>
+              <div className="flex items-center gap-3">
+                <a
+                  href={`/maps/${selectedMap.file}`}
+                  download={selectedMap.file}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#00d4ff]/10 border border-[#00d4ff]/20 text-[#00d4ff] hover:bg-[#00d4ff]/20 transition-all font-mono-data text-xs font-semibold"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Download PNG</span>
+                </a>
+                <button
+                  onClick={() => setSelectedMap(null)}
+                  className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-white/70 hover:text-white transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Image Area */}
+            <div className="flex-1 overflow-auto p-4 flex items-center justify-center bg-[#04070c] relative min-h-[400px]">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={`/maps/${selectedMap.file}`}
+                alt={selectedMap.title}
+                className="max-w-full max-h-[65vh] object-contain rounded-lg shadow-2xl border border-white/10"
+              />
+            </div>
+
+            {/* Modal Footer Description */}
+            <div className="px-6 py-4 border-t border-white/10 bg-[#080d14]">
+              <p className="text-sm text-[#8ba3cc] leading-relaxed">{selectedMap.desc}</p>
+              <div className="flex flex-wrap items-center gap-4 mt-2 font-mono-data text-xs text-[#4a6890]">
+                <span>File: {selectedMap.file}</span>
+                <span>Resolution: 10m Sentinel-2</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </DashboardLayout>
   );
 }
