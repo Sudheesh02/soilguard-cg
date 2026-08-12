@@ -3,6 +3,7 @@
  */
 import { SECTORS, MAPS, METRICS } from './site-data';
 
+export const ALL_SECTORS = SECTORS;
 export { SECTORS, MAPS, METRICS };
 
 export const STATS = {
@@ -10,7 +11,7 @@ export const STATS = {
   criticalHa: 1685.2,
   moderateHa: 1420.5,
   stableHa: 890.3,
-  meanRisk: METRICS.meanRiskScore,
+  meanRisk: METRICS.meanRisk,
   modelR2: METRICS.r2,
   modelRMSE: METRICS.rmse,
   r2: METRICS.r2,

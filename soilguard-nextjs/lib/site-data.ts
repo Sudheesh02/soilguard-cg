@@ -661,3 +661,4 @@ export const MAPS = [
 ];
 
 export const BLOCKS = ['Abhanpur', 'Arang', 'Raipur Rural', 'Dharsiwa', 'Tilda'];
+export const ALL_SECTORS = SECTORS;

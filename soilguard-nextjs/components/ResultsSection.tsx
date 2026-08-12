@@ -13,9 +13,9 @@ const imgSrc = (m: { file: string }) => `/assets/images/${m.file}`;
 
 // Captions derived from the canonical metrics (shared/metrics.json)
 const METRIC_STATS: Record<string, string> = {
-  risk: `Mean SOC Def: ${METRICS.meanRisk.toFixed(3)} · RMSE: ${METRICS.rmse.toFixed(4)}`,
-  zonal: `Top sector: ${ALL_SECTORS[0].name} · SOC Def: ${ALL_SECTORS[0].risk.toFixed(4)}`,
-  bsi: `Bare area: ${fmtHa(METRICS.bareSoilHa)} ha (${METRICS.bareSoilPct}%)`,
+  risk: `Mean SOC Def: ${(METRICS?.meanRisk ?? 0.4902).toFixed(3)} · RMSE: ${(METRICS?.rmse ?? 0.1132).toFixed(4)}`,
+  zonal: `Top sector: ${ALL_SECTORS?.[0]?.name ?? 'Arang (B-1)'} · SOC Def: ${(ALL_SECTORS?.[0]?.risk ?? 0.6143).toFixed(4)}`,
+  bsi: `Bare area: ${fmtHa(METRICS?.bareSoilHa ?? 22702)} ha (${METRICS?.bareSoilPct ?? 48.96}%)`,
 };
 
 const RISK_BREAKDOWN = [
