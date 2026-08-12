@@ -1,7 +1,8 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { Clock, Satellite, Bell, ChevronRight, Sun, Moon } from 'lucide-react';
+import { Clock, Satellite, Bell, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
+import { AnimatedThemeToggler } from '@/components/ui/AnimatedThemeToggler';
 
 interface TopbarProps {
   title: string;
@@ -85,14 +86,7 @@ export default function Topbar({ title, subtitle }: TopbarProps) {
           <div className="w-[1px] h-6 bg-white/[0.1] mx-1" />
           
           {/* Theme Toggle (Light / Dark) */}
-          <button
-            onClick={toggleTheme}
-            className="p-2 rounded-xl border border-white/[0.1] bg-white/[0.03] hover:bg-white/[0.08] text-[#8ba3cc] hover:text-white transition-all flex items-center gap-1.5 text-xs font-mono-data"
-            title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} mode`}
-          >
-            {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-indigo-400" />}
-            <span className="capitalize">{theme}</span>
-          </button>
+          <AnimatedThemeToggler />
           
           {/* Notification Bell */}
           <button className="relative p-2 rounded-full hover:bg-white/[0.05] text-[#5e7aa8] hover:text-white transition-colors">

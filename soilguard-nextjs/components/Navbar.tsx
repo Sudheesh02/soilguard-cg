@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
+import { AnimatedThemeToggler } from '@/components/AnimatedThemeToggler';
 
 const NAV_ITEMS = [
   { label: 'Problem',    href: '#problem' },
@@ -118,14 +119,7 @@ export default function Navbar() {
 
           {/* Theme Toggle + Dashboard Link + mobile toggle */}
           <div className="flex items-center gap-3">
-            <button
-              onClick={toggleTheme}
-              className="p-1.5 px-2.5 rounded-lg border border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.04)] text-[#8ba3cc] hover:text-white transition-all flex items-center gap-1.5 text-xs font-mono"
-              title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} mode`}
-            >
-              {theme === 'dark' ? '☀️' : '🌙'}
-              <span className="capitalize">{theme}</span>
-            </button>
+            <AnimatedThemeToggler />
 
             <a
               href="http://localhost:3001"
