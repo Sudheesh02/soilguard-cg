@@ -29,43 +29,64 @@
 }
 
 html.light {
-  --bg: #f8fafc;
-  --s1: #ffffff;
-  --s2: #f1f5f9;
-  --s3: #e2e8f0;
-  --s4: #cbd5e1;
-  --text-main: #0f172a;
-  --text-sub: #475569;
-  --b0: rgba(0,0,0,0.04);
-  --b1: rgba(0,0,0,0.08);
-  --b2: rgba(0,0,0,0.14);
-  --b3: rgba(0,0,0,0.22);
+  color-scheme: light;
 }
 
-html.light body {
+html.light body,
+html.light main,
+html.light section,
+html.light footer,
+html.light div[class*="bg-[#06090f]"],
+html.light div[class*="bg-[#080d16]"],
+html.light div[class*="bg-[#090d16]"],
+html.light section[class*="bg-[#06090f]"],
+html.light section[class*="bg-[#090d16]"],
+html.light footer[class*="bg-[#06090f]"] {
   background-color: #f8fafc !important;
   color: #0f172a !important;
+  background-image: none !important;
 }
 
-html.light .card, html.light .stat-card {
-  background: #ffffff !important;
+html.light div[class*="bg-[#0a0f1a]"],
+html.light div[class*="bg-[#0e1522]"],
+html.light div[class*="bg-[#0f172a]"],
+html.light div[class*="bg-[#050810]"],
+html.light div[class*="bg-[#080d18]"],
+html.light div[class*="bg-[#0c1018]"],
+html.light div[class*="bg-[#040810]"],
+html.light div[class*="bg-[#080e1a]"],
+html.light .card,
+html.light .stat-card,
+html.light .terminal-window {
+  background-color: #ffffff !important;
   border-color: #e2e8f0 !important;
   color: #0f172a !important;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.05) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06) !important;
 }
 
-html.light .section-title {
+html.light .section-title,
+html.light h1, html.light h2, html.light h3, html.light h4, html.light h5,
+html.light .text-[#e2ecff],
+html.light .text-white {
   color: #0f172a !important;
 }
 
-html.light .section-body, html.light p {
+html.light .section-body,
+html.light p,
+html.light span:not([class*="badge"]):not([class*="text-[#00d4ff]"]):not([class*="text-[#10b981]"]):not([class*="text-[#f59e0b]"]):not([class*="text-emerald"]):not([class*="text-sky"]),
+html.light .text-[#8ba3cc],
+html.light .text-[#4a6890],
+html.light .text-[#5e7aa8],
+html.light .text-[#3d5a80],
+html.light .text-slate-400 {
   color: #475569 !important;
 }
 
 html.light nav {
-  background: rgba(255, 255, 255, 0.95) !important;
+  background-color: rgba(255, 255, 255, 0.95) !important;
   border-color: #e2e8f0 !important;
   color: #0f172a !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05) !important;
 }
 
 html.light .nav-link {
@@ -74,6 +95,31 @@ html.light .nav-link {
 
 html.light .nav-link:hover {
   color: #0f172a !important;
+}
+
+html.light code, html.light pre, html.light .terminal-body {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+html.light table th {
+  background-color: #f1f5f9 !important;
+  color: #475569 !important;
+  border-color: #e2e8f0 !important;
+}
+
+html.light table td {
+  border-color: #f1f5f9 !important;
+  color: #1e293b !important;
+}
+
+html.light table tbody tr:hover {
+  background-color: #f8fafc !important;
+}
+
+html.light .section-border {
+  border-color: #e2e8f0 !important;
 }
 
 /* ═══════════════════════════════════════
