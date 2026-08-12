@@ -108,21 +108,18 @@ export default function Footer() {
             </div>
           ))}
 
-          {/* AOI Details */}
-          <div className="md:col-span-3 lg:col-span-2">
-            <p className="eyebrow mb-5">AOI Details</p>
-            <div className="space-y-3 font-mono text-[11px] bg-[rgba(255,255,255,0.02)] p-4 rounded-xl border border-[rgba(255,255,255,0.04)]">
-              {[
-                { label: 'BBox', value: '81.60°E, 21.10°N' },
-                { label: '    ', value: '81.80°E, 21.30°N' },
-                { label: 'CRS ', value: 'EPSG:32644' },
-                { label: 'Res ', value: '10m / px' },
-              ].map((d, idx) => (
-                <div key={idx} className="flex justify-between items-center border-b border-[rgba(255,255,255,0.02)] last:border-0 pb-1 last:pb-0">
-                  <span className="text-[#4a6890]">{d.label}</span>
-                  <span className="text-[#e2ecff] font-semibold">{d.value}</span>
-                </div>
-              ))}
+          {/* AOI Details in 1 line strip */}
+          <div className="md:col-span-12 border-t border-white/10 pt-6 mt-4">
+            <div className="flex flex-wrap items-center justify-between gap-4 font-mono text-xs text-[#8ba3cc] bg-white/[0.02] p-3.5 px-5 rounded-xl border border-white/[0.06]">
+              <div className="flex items-center gap-2">
+                <span className="text-[#00d4ff] font-bold">AOI DETAILS:</span>
+                <span className="text-[#e2ecff]">Raipur–Durg Agricultural Belt, Chhattisgarh</span>
+              </div>
+              <div className="flex flex-wrap items-center gap-x-6 gap-y-1 text-[11.5px]">
+                <span>BBox: <strong className="text-white">81.60°–81.80°E, 21.10°–21.30°N</strong></span>
+                <span>CRS: <strong className="text-white">EPSG:32644</strong></span>
+                <span>Resolution: <strong className="text-white">10m / px</strong></span>
+              </div>
             </div>
           </div>
         </div>
