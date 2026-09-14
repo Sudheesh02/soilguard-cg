@@ -7,6 +7,14 @@ histograms, saves summary statistics CSV, and prints rich terminal analysis.
 import os
 import sys
 
+# Enforce UTF-8 output on Windows consoles to prevent cp1252 charmap crashes with Rich unicode
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+        sys.stderr.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+
 import numpy as np
 import pandas as pd
 import matplotlib

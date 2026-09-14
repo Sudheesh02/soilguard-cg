@@ -32,6 +32,7 @@ OUTPUTS_DIR = os.path.join(PROJECT_ROOT, "outputs")
 PHASE2_OUTPUT_DIR = os.path.join(OUTPUTS_DIR, "phase2")
 PHASE3_OUTPUT_DIR = os.path.join(OUTPUTS_DIR, "phase3")
 PHASE4_OUTPUT_DIR = os.path.join(OUTPUTS_DIR, "phase4")
+STATEWIDE_OUTPUT_DIR = os.path.join(OUTPUTS_DIR, "chhattisgarh_statewide")
 
 # --- Domain constants -------------------------------------------------------
 # 10m x 10m pixel = 100 m^2 = 0.01 ha

@@ -10,8 +10,6 @@ SoilGuard-CG is a terminal-native geospatial Machine Learning platform designed 
 ```
 soilguard-cg/
 ├── data/
-│   ├── raw/                 # Raw downloaded tiles / shapes
-│   ├── processed/           # Processed rasters and vectors
 │   └── golden/              # Cached offline datasets (Sentinel-2 + SoilGrids)
 ├── src/
 │   ├── config.py            # Shared paths, constants & sys.path bootstrap (single source)
@@ -38,7 +36,6 @@ soilguard-cg/
 │   ├── soil_soc_rf.joblib   # Trained Satellite-Driven Random Forest Model
 │   ├── soil_soc_metrics.json# Real test metrics (R²/RMSE) written by Phase 3
 │   └── soil_risk_rf.joblib  # Legacy model (kept for compatibility)
-├── notebooks/               # Analysis and prototyping notebooks
 ├── environment.yml          # Conda environment definition
 ├── requirements.txt         # Pip dependency file
 └── README.md                # Project documentation

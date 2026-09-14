@@ -10,7 +10,7 @@
 
 | Service | Direct Link | Status |
 | :--- | :--- | :--- |
-| SoilGuard 33 District GIS Hub | [soilguard-cg.vercel.app](https://tvs-credit-nu.vercel.app/) | ![Production](https://img.shields.io/badge/Status-Active-brightgreen) |
+| SoilGuard 33 District GIS Hub | [soilguard-nextjs.vercel.app](https://soilguard-nextjs.vercel.app/) | ![Production](https://img.shields.io/badge/Status-Active-brightgreen) |
 | CloudGap Inpainting and Analytics API | [Localhost FastAPI Swagger UI](http://localhost:8000/docs) | ![Operational](https://img.shields.io/badge/Status-Operational-brightgreen) |
 | SoilGuard Interactive Operations Portal | [Localhost Next.js Portal](http://localhost:5555) | ![Verified](https://img.shields.io/badge/Status-Verified-brightgreen) |
 

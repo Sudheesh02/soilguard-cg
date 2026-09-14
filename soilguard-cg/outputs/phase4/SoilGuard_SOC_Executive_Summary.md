@@ -12,7 +12,7 @@ Agricultural topsoils in Chhattisgarh (*Dhan ka Katora*) experience intense post
 ## 🔬 Predictive Model Performance & Methodology
 - **Remote Sensing Inputs**: Sentinel-2 L2A BOA Reflectance (B02, B04, B08, B11) windowed Cloud-Optimized GeoTIFFs (COGs).
 - **Target Variable**: Ground-truth SOC Deficiency Index $y \in [0.0, 1.0]$ combining SoilGrids SOC deficit (60%) and Bare Soil Index (BSI) exposure (40%).
-- **Random Forest Regressor Accuracy**: Test $R^2 = 0.4550$, Test $\text{RMSE} = 0.1126$ trained on 80,000 samples.
+- **Random Forest Regressor Accuracy**: Test $R^2 = 0.4076$, Test $\text{RMSE} = 0.1981$ trained on 80,000 samples.
   *(Note: Raw SoilGrids SOC was strictly excluded from feature matrix X to eliminate target leakage and ensure true satellite spectral response learning).*
 
 ---
@@ -20,14 +20,14 @@ Agricultural topsoils in Chhattisgarh (*Dhan ka Katora*) experience intense post
 ## 📊 Key Area Audit & Priority Sectors
 
 - **Total Agricultural Soil Evaluated**: `22,702.47 Hectares` ($2,270,247$ valid bare soil pixels)
-- **High SOC Deficiency Priority (> 0.58)**: `4,456.07 ha (19.6%)` — **URGENT REGENERATIVE INTERVENTION REQUIRED**
-- **Moderate SOC Deficiency (0.45–0.58)**: `9,690.71 ha` — Carbon replenishment & cover crop rotation needed
-- **Low SOC Deficiency (< 0.45)**: `9,035.23 ha` — Stable organic carbon matter
+- **High SOC Deficiency Priority (> 0.58)**: `5,436.96 ha (23.9%)` — **URGENT REGENERATIVE INTERVENTION REQUIRED**
+- **Moderate SOC Deficiency (0.45–0.58)**: `3,510.36 ha` — Carbon replenishment & cover crop rotation needed
+- **Low SOC Deficiency (< 0.45)**: `14,434.95 ha` — Stable organic carbon matter
 
 ### Top Priority Sectors Requiring Regenerative Carbon Building
-- **Rank #1 (`Arang (B-1)`)**: Mean SOC Def `0.6564` | High Def Area `941.7 ha` | *Advisory*: Severe SOC Deficit & Low Clay: Apply 10-12 t/ha Farmyard Manure (FYM) or 3-4 t/ha Biochar + Green Manuring (Dhaincha/Sunnhemp) prior to Kharif paddy + 100% crop residue incorporation.
-- **Rank #2 (`Abhanpur (A-1)`)**: Mean SOC Def `0.6494` | High Def Area `899.4 ha` | *Advisory*: Severe SOC Deficit & Low Clay: Apply 10-12 t/ha Farmyard Manure (FYM) or 3-4 t/ha Biochar + Green Manuring (Dhaincha/Sunnhemp) prior to Kharif paddy + 100% crop residue incorporation.
-- **Rank #3 (`Arang (B-2)`)**: Mean SOC Def `0.6310` | High Def Area `810.7 ha` | *Advisory*: Severe SOC Deficit & Low Clay: Apply 10-12 t/ha Farmyard Manure (FYM) or 3-4 t/ha Biochar + Green Manuring (Dhaincha/Sunnhemp) prior to Kharif paddy + 100% crop residue incorporation.
+- **Rank #1 (`Arang (B-1)`)**: Mean SOC Def `0.8372` | High Def Area `1,026.9 ha` | *Advisory*: Severe SOC Deficit & Low Clay: Apply 10-12 t/ha Farmyard Manure (FYM) or 3-4 t/ha Biochar + Green Manuring (Dhaincha/Sunnhemp) prior to Kharif paddy + 100% crop residue incorporation.
+- **Rank #2 (`Abhanpur (A-1)`)**: Mean SOC Def `0.8118` | High Def Area `995.6 ha` | *Advisory*: Severe SOC Deficit & Low Clay: Apply 10-12 t/ha Farmyard Manure (FYM) or 3-4 t/ha Biochar + Green Manuring (Dhaincha/Sunnhemp) prior to Kharif paddy + 100% crop residue incorporation.
+- **Rank #3 (`Arang (B-2)`)**: Mean SOC Def `0.7955` | High Def Area `936.2 ha` | *Advisory*: Severe SOC Deficit & Low Clay: Apply 10-12 t/ha Farmyard Manure (FYM) or 3-4 t/ha Biochar + Green Manuring (Dhaincha/Sunnhemp) prior to Kharif paddy + 100% crop residue incorporation.
 
 
 ---
@@ -42,7 +42,7 @@ Agricultural topsoils in Chhattisgarh (*Dhan ka Katora*) experience intense post
 ## 📚 Scientific Literature Benchmark & Zero Target Leakage Validation
 In peer-reviewed Earth Observation literature (*Remote Sensing of Environment*, *Geoderma*, *ISPRS Journal of Photogrammetry and Remote Sensing*), un-leakaged satellite optical regression of topsoil organic carbon across regional extents typically yields an accuracy benchmark of **$R^2 \in [0.35, 0.55]$** (*Castaldi et al., 2019; Vaudour et al., 2019; Gholizadeh et al., 2018*). 
 
-Our model's achieved test score of **$R^2 = 0.4550$ ($\text{RMSE} = 0.1126$)** represents **honest, un-leakaged satellite optical physics**. Models claiming overfitted $R^2 \ge 0.90$ routinely suffer from target leakage (feeding static ground-truth rasters directly into feature matrix $X$). By enforcing strict exclusion of raw SoilGrids SOC from input features $X$, **SoilGuard-SOC** guarantees true optical spectral learning and generalization across unseen agricultural fields.
+Our model's achieved test score of **$R^2 = 0.4076$ ($\text{RMSE} = 0.1981$)** represents **honest, un-leakaged satellite optical physics**. Models claiming overfitted $R^2 \ge 0.90$ routinely suffer from target leakage (feeding static ground-truth rasters directly into feature matrix $X$). By enforcing strict exclusion of raw SoilGrids SOC from input features $X$, **SoilGuard-SOC** guarantees true optical spectral learning and generalization across unseen agricultural fields.
 
 ### Key Peer-Reviewed Formulations & Citations Integrated:
 1. **Bare Soil Index (BSI):** Diek et al. (2017) & Rikimaru et al. (2002) — $\text{BSI} = \frac{(\text{SWIR1}+\text{Red})-(\text{NIR}+\text{Blue})}{(\text{SWIR1}+\text{Red})+(\text{NIR}+\text{Blue})}$
