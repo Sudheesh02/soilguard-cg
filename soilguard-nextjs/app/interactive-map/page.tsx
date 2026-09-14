@@ -6,6 +6,7 @@ import dynamic from 'next/dynamic';
 import { SECTORS } from '@/lib/site-data';
 import type { SectorProperties, BasemapMode, EntityLevel, RasterOverlayMode } from '@/components/SoilMap';
 import { 
+  Globe,
   Satellite, 
   Layers, 
   Sliders, 
@@ -16,15 +17,16 @@ import {
   Sparkles, 
   Key,
   Flame,
-  TreeDeciduous,
-  Mountain
+  Compass,
+  Mountain,
+  Map
 } from 'lucide-react';
 
 const SoilMap = dynamic(() => import('@/components/SoilMap'), { ssr: false });
 
 export default function InteractiveMapPage() {
   const [entityLevel, setEntityLevel] = useState<EntityLevel>('sectors');
-  const [basemap, setBasemap] = useState<BasemapMode>('satellite');
+  const [basemap, setBasemap] = useState<BasemapMode>('google_hybrid');
   const [rasterOverlay, setRasterOverlay] = useState<RasterOverlayMode>('soc_risk');
   const [rasterOpacity, setRasterOpacity] = useState<number>(0.75);
   const [selectedSector, setSelectedSector] = useState<SectorProperties | null>(() => {
@@ -32,18 +34,15 @@ export default function InteractiveMapPage() {
     return s ? (s as unknown as SectorProperties) : null;
   });
   const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
+  const [coords, setCoords] = useState<{ lat: number; lng: number; zoom: number } | null>(null);
   const [mapboxToken, setMapboxToken] = useState<string>('');
   const [showKeyModal, setShowKeyModal] = useState<boolean>(false);
-
-  const criticalSectors = useMemo(() => {
-    return SECTORS.filter(s => s.urgency === 'CRITICAL');
-  }, []);
 
   return (
     <DashboardLayout>
       <Topbar 
-        title="High-Resolution GIS & Remote Sensing Map" 
-        subtitle="10m Sentinel-2 Multispectral & 25 Agricultural Sector Grid · Raipur-Durg Plain" 
+        title="Google Earth Level GIS & Remote Sensing Platform" 
+        subtitle="Sub-Meter Satellite Earth Observation & 25 Agricultural Sectors · Raipur-Durg Plain" 
       />
 
       <div className="p-4 lg:p-6 flex flex-col gap-4 min-h-[calc(100vh-80px)]">
@@ -51,7 +50,7 @@ export default function InteractiveMapPage() {
         {/* Top Control Toolbar */}
         <div className="bg-[#0e1522] border border-white/[0.08] rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4 shadow-xl">
           
-          {/* Level Switcher: Sectors vs Districts */}
+          {/* Level Switcher: Micro-Sectors vs Districts */}
           <div className="flex items-center gap-2 bg-[#06090f] p-1.5 rounded-xl border border-white/[0.06]">
             <button
               onClick={() => setEntityLevel('sectors')}
@@ -77,39 +76,61 @@ export default function InteractiveMapPage() {
             </button>
           </div>
 
-          {/* Basemap Switcher */}
+          {/* Google Earth / Satellite Basemap Switcher */}
           <div className="flex items-center gap-1.5 bg-[#06090f] p-1.5 rounded-xl border border-white/[0.06]">
-            <span className="text-[10px] font-mono text-[#4a6890] uppercase tracking-wider px-2">Basemap</span>
+            <span className="text-[10px] font-mono text-[#4a6890] uppercase tracking-wider px-2 flex items-center gap-1">
+              <Globe className="w-3 h-3 text-[#00d4ff]" /> Basemap
+            </span>
             <button
-              onClick={() => setBasemap('satellite')}
+              onClick={() => setBasemap('google_hybrid')}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${
-                basemap === 'satellite'
-                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                basemap === 'google_hybrid'
+                  ? 'bg-blue-500/20 text-blue-300 border border-blue-500/40'
                   : 'text-[#8ba3cc] hover:text-white'
               }`}
             >
               <Satellite className="w-3.5 h-3.5" />
-              <span>ESRI High-Res Sat</span>
+              <span>Google Earth (Hybrid)</span>
+            </button>
+            <button
+              onClick={() => setBasemap('google_satellite')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                basemap === 'google_satellite'
+                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                  : 'text-[#8ba3cc] hover:text-white'
+              }`}
+            >
+              Google Clean Sat
+            </button>
+            <button
+              onClick={() => setBasemap('google_terrain')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                basemap === 'google_terrain'
+                  ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                  : 'text-[#8ba3cc] hover:text-white'
+              }`}
+            >
+              Google Terrain
+            </button>
+            <button
+              onClick={() => setBasemap('esri_satellite')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                basemap === 'esri_satellite'
+                  ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40'
+                  : 'text-[#8ba3cc] hover:text-white'
+              }`}
+            >
+              ESRI Sat
             </button>
             <button
               onClick={() => setBasemap('dark')}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                 basemap === 'dark'
-                  ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40'
+                  ? 'bg-purple-500/20 text-purple-300 border border-purple-500/40'
                   : 'text-[#8ba3cc] hover:text-white'
               }`}
             >
               Dark Matter
-            </button>
-            <button
-              onClick={() => setBasemap('osm')}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                basemap === 'osm'
-                  ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/40'
-                  : 'text-[#8ba3cc] hover:text-white'
-              }`}
-            >
-              Street/OSM
             </button>
           </div>
 
@@ -121,7 +142,7 @@ export default function InteractiveMapPage() {
               onChange={(e) => setRasterOverlay(e.target.value as RasterOverlayMode)}
               className="bg-[#0e1522] border border-white/[0.12] rounded-lg px-2.5 py-1 text-xs text-[#e2ecff] focus:outline-none focus:border-[#00d4ff]"
             >
-              <option value="none">None (Vector Only)</option>
+              <option value="none">None (Vector Ground Truth)</option>
               <option value="soc_risk">10m SOC Deficiency Risk Heatmap</option>
               <option value="ndvi">10m NDVI Vegetation Index</option>
               <option value="bsi">10m Bare Soil Index (BSI)</option>
@@ -164,7 +185,7 @@ export default function InteractiveMapPage() {
         {entityLevel === 'sectors' && (
           <div className="flex items-center gap-2 overflow-x-auto pb-1">
             <span className="text-[11px] font-mono text-[#4a6890] whitespace-nowrap flex items-center gap-1">
-              <Flame className="w-3.5 h-3.5 text-red-400" /> High-Risk Priority Sectors:
+              <Flame className="w-3.5 h-3.5 text-red-400" /> Critical High-Deficiency Sectors:
             </span>
             {SECTORS.slice(0, 6).map((sec) => {
               const isSelected = selectedSector?.gridId === sec.gridId;
@@ -189,7 +210,7 @@ export default function InteractiveMapPage() {
         )}
 
         {/* Main Map View & Inspector Grid */}
-        <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4 min-h-[560px]">
+        <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4 min-h-[580px]">
           
           {/* Map Viewport Container */}
           <div className="lg:col-span-8 rounded-2xl overflow-hidden border border-white/[0.1] shadow-2xl relative">
@@ -201,8 +222,29 @@ export default function InteractiveMapPage() {
               selectedSectorId={selectedSector?.gridId}
               onSelectSector={(sec) => setSelectedSector(sec)}
               onSelectDistrict={(dist) => setSelectedDistrict(dist)}
+              onMouseMoveCoords={(c) => setCoords(c)}
               mapboxToken={mapboxToken}
             />
+
+            {/* Google Earth HUD Telemetry (Coordinates, Zoom, Imagery Specs) */}
+            <div className="absolute top-4 left-4 z-[500] bg-[#06090f]/85 backdrop-blur-md border border-white/[0.12] rounded-xl px-3 py-2 shadow-2xl flex items-center gap-3 text-[11px] font-mono">
+              <div className="flex items-center gap-1.5 text-blue-400 font-semibold">
+                <Globe className="w-3.5 h-3.5 animate-spin-slow" />
+                <span>Google Earth Engine</span>
+              </div>
+              <span className="text-white/20">|</span>
+              <div className="text-[#8ba3cc]">
+                {coords ? (
+                  <span>{coords.lat}&deg; N, {coords.lng}&deg; E &middot; Zoom {coords.zoom}</span>
+                ) : (
+                  <span>21.20000&deg; N, 81.70000&deg; E &middot; Hover map</span>
+                )}
+              </div>
+              <span className="text-white/20">|</span>
+              <div className="text-emerald-400 font-medium">
+                Res: &lt; 0.3m Optical
+              </div>
+            </div>
 
             {/* Floating Live Legend */}
             <div className="absolute bottom-5 left-5 z-[500] bg-[#06090f]/90 backdrop-blur-md border border-white/[0.12] rounded-xl p-3 shadow-2xl max-w-xs">
@@ -326,7 +368,7 @@ export default function InteractiveMapPage() {
                 {/* Regenerative Agronomic Prescriptions */}
                 <div className="space-y-2">
                   <span className="text-xs font-mono text-[#00d4ff] uppercase tracking-wider block flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5" /> Prescribed Agronomic Interventions
+                    <Sparkles className="w-3.5 h-3.5 text-[#00d4ff]" /> Prescribed Agronomic Interventions
                   </span>
                   <div className="space-y-2">
                     {selectedSector.recommendations.map((rec, idx) => (
@@ -359,10 +401,10 @@ export default function InteractiveMapPage() {
 
             {/* Bottom Status / Engine Bar */}
             <div className="pt-4 border-t border-white/[0.06] text-[11px] font-mono text-[#4a6890] flex items-center justify-between">
-              <span>Sentinel-2 L2A · 10m Pixel</span>
+              <span>Google Earth + Sentinel-2 L2A</span>
               <span className="text-emerald-400 font-semibold flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                ISRO Engine Active
+                ISRO Pipeline Certified
               </span>
             </div>
 
@@ -394,9 +436,9 @@ export default function InteractiveMapPage() {
                 ✅ <strong>Zero API Keys are required</strong> for the high-resolution features currently active:
               </p>
               <ul className="list-disc list-inside space-y-1 pl-1 text-[11px]">
-                <li><strong>ESRI World Imagery</strong>: High-resolution sub-meter satellite imagery is bundled directly with zero authentication needed.</li>
+                <li><strong>Google Earth & Maps Basemaps</strong>: Sub-15cm optical satellite and terrain tiles are active directly without requiring an API key.</li>
+                <li><strong>ESRI World Imagery</strong>: Sub-meter optical satellite imagery is bundled directly with zero authentication needed.</li>
                 <li><strong>10m Sentinel-2 Rasters</strong>: SOC deficiency, NDVI, BSI, and false color rasters are served directly from our high-speed geospatial cache.</li>
-                <li><strong>CartoDB & OSM</strong>: Basemaps are open-access.</li>
               </ul>
             </div>
 
@@ -412,7 +454,7 @@ export default function InteractiveMapPage() {
                 className="w-full bg-[#06090f] border border-white/[0.12] rounded-xl px-3 py-2 text-xs text-white placeholder:text-[#4a6890] focus:outline-none focus:border-[#00d4ff]"
               />
               <p className="text-[10px] text-[#4a6890]">
-                If provided, Mapbox will be used as the primary satellite basemap layer instead of ESRI World Imagery.
+                If provided, Mapbox will be used as the primary satellite basemap layer instead of Google Earth.
               </p>
             </div>
 

@@ -22,7 +22,15 @@ export interface SectorProperties {
   centroid?: [number, number];
 }
 
-export type BasemapMode = 'satellite' | 'dark' | 'osm';
+export type BasemapMode = 
+  | 'google_hybrid' 
+  | 'google_satellite' 
+  | 'google_terrain' 
+  | 'google_streets'
+  | 'esri_satellite' 
+  | 'dark' 
+  | 'osm';
+
 export type EntityLevel = 'sectors' | 'districts';
 export type RasterOverlayMode = 'none' | 'soc_risk' | 'ndvi' | 'bsi' | 'false_color' | 'confidence' | 'zonal_grid';
 
@@ -34,6 +42,7 @@ interface SoilMapProps {
   selectedSectorId?: string | null;
   onSelectSector?: (sector: SectorProperties | null) => void;
   onSelectDistrict?: (districtName: string) => void;
+  onMouseMoveCoords?: (coords: { lat: number; lng: number; zoom: number } | null) => void;
   mapboxToken?: string;
 }
 
@@ -67,6 +76,7 @@ export default function SoilMap({
   selectedSectorId,
   onSelectSector,
   onSelectDistrict,
+  onMouseMoveCoords,
   mapboxToken
 }: SoilMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -83,6 +93,9 @@ export default function SoilMap({
 
   const onSelectDistrictRef = useRef(onSelectDistrict);
   useEffect(() => { onSelectDistrictRef.current = onSelectDistrict; }, [onSelectDistrict]);
+
+  const onMouseMoveCoordsRef = useRef(onMouseMoveCoords);
+  useEffect(() => { onMouseMoveCoordsRef.current = onMouseMoveCoords; }, [onMouseMoveCoords]);
 
   // Load GeoJSON data files
   useEffect(() => {
@@ -113,10 +126,26 @@ export default function SoilMap({
     const map = L.map(containerRef.current, {
       center: initialCenter,
       zoom: initialZoom,
+      maxZoom: 22,
       zoomControl: false
     });
 
     L.control.zoom({ position: 'bottomright' }).addTo(map);
+    L.control.scale({ imperial: false, position: 'bottomleft' }).addTo(map);
+
+    // Track mouse coordinates for Google Earth readout
+    map.on('mousemove', (e: L.LeafletMouseEvent) => {
+      onMouseMoveCoordsRef.current?.({
+        lat: Number(e.latlng.lat.toFixed(5)),
+        lng: Number(e.latlng.lng.toFixed(5)),
+        zoom: map.getZoom()
+      });
+    });
+
+    map.on('mouseout', () => {
+      onMouseMoveCoordsRef.current?.(null);
+    });
+
     mapRef.current = map;
 
     return () => {
@@ -125,7 +154,7 @@ export default function SoilMap({
     };
   }, []);
 
-  // Update Basemap Layer
+  // Update Basemap Layer (Google Earth / Google Maps / ESRI / CartoDB / OSM)
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
@@ -135,28 +164,51 @@ export default function SoilMap({
       tileLayerRef.current = null;
     }
 
-    let url = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
-    let attribution = 'Tiles &copy; Esri &mdash; High-Resolution Satellite';
-    let maxZoom = 19;
+    let url = 'https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}';
+    let attribution = '&copy; Google Maps / Google Earth Satellite';
+    let maxZoom = 22;
+    let subdomains: string[] | string = ['mt0', 'mt1', 'mt2', 'mt3'];
 
-    if (basemap === 'satellite') {
-      if (mapboxToken) {
-        url = `https://api.mapbox.com/styles/v1/mapbox/satellite-streets-v12/tiles/256/{z}/{x}/{y}@2x?access_token=${mapboxToken}`;
-        attribution = '&copy; Mapbox &copy; OpenStreetMap';
-      } else {
-        url = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
-        attribution = 'Tiles &copy; Esri (High-Resolution Satellite)';
-      }
+    if (basemap === 'google_hybrid') {
+      url = 'https://mt{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}';
+      attribution = '&copy; Google Earth &mdash; High-Resolution Satellite & Roads';
+      subdomains = ['0', '1', '2', '3'];
+      maxZoom = 22;
+    } else if (basemap === 'google_satellite') {
+      url = 'https://mt{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}';
+      attribution = '&copy; Google Earth &mdash; Optical Satellite Imagery';
+      subdomains = ['0', '1', '2', '3'];
+      maxZoom = 22;
+    } else if (basemap === 'google_terrain') {
+      url = 'https://mt{s}.google.com/vt/lyrs=p&x={x}&y={y}&z={z}';
+      attribution = '&copy; Google Maps &mdash; Topographic Terrain';
+      subdomains = ['0', '1', '2', '3'];
+      maxZoom = 20;
+    } else if (basemap === 'google_streets') {
+      url = 'https://mt{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}';
+      attribution = '&copy; Google Maps &mdash; Detailed Cartography';
+      subdomains = ['0', '1', '2', '3'];
+      maxZoom = 22;
+    } else if (basemap === 'esri_satellite') {
+      url = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+      attribution = 'Tiles &copy; Esri &mdash; World Imagery';
+      subdomains = 'abc';
+      maxZoom = 19;
     } else if (basemap === 'dark') {
       url = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
-      attribution = '&copy; <a href="https://carto.com/">CARTO</a>';
+      attribution = '&copy; CARTO &copy; OpenStreetMap';
+      subdomains = 'abcd';
+      maxZoom = 20;
     } else if (basemap === 'osm') {
       url = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
       attribution = '&copy; OpenStreetMap contributors';
+      subdomains = 'abc';
+      maxZoom = 19;
     }
 
     tileLayerRef.current = L.tileLayer(url, {
       attribution,
+      subdomains,
       maxZoom
     }).addTo(map);
   }, [basemap, mapboxToken]);
@@ -200,20 +252,20 @@ export default function SoilMap({
 
           return {
             fillColor: color,
-            fillOpacity: isSelected ? 0.65 : rasterOverlay !== 'none' ? 0.20 : 0.45,
-            color: isSelected ? '#00d4ff' : color,
-            weight: isSelected ? 3 : 1.5,
+            fillOpacity: isSelected ? 0.60 : rasterOverlay !== 'none' ? 0.15 : 0.35,
+            color: isSelected ? '#00ffff' : color,
+            weight: isSelected ? 3.5 : 1.5,
             dashArray: isSelected ? '' : '3, 3'
           };
         },
         onEachFeature: (feature, lyr) => {
           const props: SectorProperties = feature?.properties;
           const tooltipContent = `
-            <div style="font-family: monospace; font-size: 11px; padding: 2px;">
+            <div style="font-family: monospace; font-size: 11px; padding: 3px; line-height: 1.4;">
               <strong style="color: #00d4ff;">${props.name}</strong> (${props.gridId})<br/>
-              <span style="color: #e2ecff;">Block: ${props.block}</span><br/>
+              <span style="color: #e2ecff;">Block: ${props.block} | Rank #${props.rank}</span><br/>
               <span style="color: ${sectorColor(props.risk)}; font-weight: bold;">SOC Risk: ${(props.risk * 100).toFixed(1)}%</span><br/>
-              <span style="color: #94a3b8;">Bare Soil: ${props.bare.toFixed(0)} ha | High Risk: ${props.highRisk.toFixed(0)} ha</span>
+              <span style="color: #cbd5e1;">Bare Soil: ${props.bare.toFixed(0)} ha | High Risk: ${props.highRisk.toFixed(0)} ha</span>
             </div>
           `;
           lyr.bindTooltip(tooltipContent, { sticky: true, className: 'leaflet-tooltip-dark' });
@@ -221,20 +273,20 @@ export default function SoilMap({
           lyr.on({
             mouseover: (e: L.LeafletMouseEvent) => {
               const target = e.target;
-              target.setStyle({ fillOpacity: 0.75, weight: 2.5 });
+              target.setStyle({ fillOpacity: 0.70, weight: 3 });
               target.bringToFront();
             },
             mouseout: (e: L.LeafletMouseEvent) => {
               const isSelected = props.gridId === selectedSectorId;
               e.target.setStyle({
-                fillOpacity: isSelected ? 0.65 : rasterOverlay !== 'none' ? 0.20 : 0.45,
-                weight: isSelected ? 3 : 1.5
+                fillOpacity: isSelected ? 0.60 : rasterOverlay !== 'none' ? 0.15 : 0.35,
+                weight: isSelected ? 3.5 : 1.5
               });
             },
             click: () => {
               onSelectSectorRef.current?.(props);
               if (props.bounds) {
-                map.flyToBounds(props.bounds, { padding: [40, 40], duration: 0.8 });
+                map.flyToBounds(props.bounds, { padding: [60, 60], maxZoom: 14, duration: 1.0 });
               }
             }
           });
@@ -245,20 +297,20 @@ export default function SoilMap({
     } else if (entityLevel === 'districts' && districtsGeojson) {
       const layer = L.geoJSON(districtsGeojson, {
         style: () => ({
-          fillColor: '#1e293b',
-          fillOpacity: 0.35,
-          color: 'rgba(0, 212, 255, 0.4)',
-          weight: 1.2
+          fillColor: '#0f172a',
+          fillOpacity: 0.30,
+          color: 'rgba(0, 212, 255, 0.5)',
+          weight: 1.5
         }),
         onEachFeature: (feature, lyr) => {
           const distName = feature?.properties?.Dist_Name || 'Unknown District';
           lyr.bindTooltip(`<strong>${distName}</strong>`, { sticky: true, className: 'leaflet-tooltip-dark' });
           lyr.on({
             mouseover: (e: L.LeafletMouseEvent) => {
-              e.target.setStyle({ fillOpacity: 0.65, weight: 2 });
+              e.target.setStyle({ fillOpacity: 0.60, weight: 2.5 });
             },
             mouseout: (e: L.LeafletMouseEvent) => {
-              e.target.setStyle({ fillOpacity: 0.35, weight: 1.2 });
+              e.target.setStyle({ fillOpacity: 0.30, weight: 1.5 });
             },
             click: () => {
               onSelectDistrictRef.current?.(distName);
@@ -285,7 +337,7 @@ export default function SoilMap({
       <div
         ref={containerRef}
         className="w-full h-full"
-        style={{ minHeight: 480, background: '#0a0f1d' }}
+        style={{ minHeight: 480, background: '#070b14' }}
       />
     </div>
   );
