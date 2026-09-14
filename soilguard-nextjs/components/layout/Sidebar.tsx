@@ -7,6 +7,7 @@ const NAV = [
   { href: '/dashboard', label: 'Overview', icon: LayoutDashboard, count: null },
   { href: '/sectors', label: 'Sectors', icon: BarChart3, count: 142 },
   { href: '/maps', label: 'Maps', icon: Map, count: 4 },
+  { href: '/interactive-map', label: 'Interactive Map', icon: Map, count: null },
   { href: '/recommendations', label: 'Recommendations', icon: Leaf, count: 12 },
 ];
 
