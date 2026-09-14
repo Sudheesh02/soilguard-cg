@@ -19,7 +19,9 @@ import {
   Flame,
   Compass,
   Mountain,
-  Map
+  Map,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 
 const SoilMap = dynamic(() => import('@/components/SoilMap'), { ssr: false });
@@ -29,6 +31,7 @@ export default function InteractiveMapPage() {
   const [basemap, setBasemap] = useState<BasemapMode>('google_hybrid');
   const [rasterOverlay, setRasterOverlay] = useState<RasterOverlayMode>('soc_risk');
   const [rasterOpacity, setRasterOpacity] = useState<number>(0.75);
+  const [showSectorBoundaries, setShowSectorBoundaries] = useState<boolean>(true);
   const [selectedSector, setSelectedSector] = useState<SectorProperties | null>(() => {
     const s = SECTORS[0];
     return s ? (s as unknown as SectorProperties) : null;
@@ -171,6 +174,26 @@ export default function InteractiveMapPage() {
             )}
           </div>
 
+          {/* Sector Boundary Toggle */}
+          {entityLevel === 'sectors' && (
+            <button
+              onClick={() => setShowSectorBoundaries((v) => !v)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-semibold transition-all ${
+                showSectorBoundaries
+                  ? 'bg-blue-500/20 text-blue-300 border-blue-500/40 shadow-sm'
+                  : 'bg-white/[0.04] text-[#8ba3cc] border-white/[0.08] hover:text-white'
+              }`}
+              title="Toggle 25 Sector Outlines to inspect pure satellite imagery"
+            >
+              {showSectorBoundaries ? (
+                <Eye className="w-3.5 h-3.5 text-[#00d4ff]" />
+              ) : (
+                <EyeOff className="w-3.5 h-3.5 text-zinc-400" />
+              )}
+              <span>Sector Outlines: {showSectorBoundaries ? 'ON' : 'OFF'}</span>
+            </button>
+          )}
+
           {/* API Key Modal Button */}
           <button
             onClick={() => setShowKeyModal(true)}
@@ -220,6 +243,7 @@ export default function InteractiveMapPage() {
               rasterOverlay={rasterOverlay}
               rasterOpacity={rasterOpacity}
               selectedSectorId={selectedSector?.gridId}
+              showSectorBoundaries={showSectorBoundaries}
               onSelectSector={(sec) => setSelectedSector(sec)}
               onSelectDistrict={(dist) => setSelectedDistrict(dist)}
               onMouseMoveCoords={(c) => setCoords(c)}
@@ -246,8 +270,112 @@ export default function InteractiveMapPage() {
               </div>
             </div>
 
-            {/* Floating Live Legend */}
-            <div className="absolute bottom-5 left-5 z-[500] bg-[#06090f]/90 backdrop-blur-md border border-white/[0.12] rounded-xl p-3 shadow-2xl max-w-xs">
+            {/* Floating Live GIS Legend & Color Ramp */}
+            <div className="absolute bottom-5 left-5 z-[500] bg-[#06090f]/92 backdrop-blur-md border border-white/[0.12] rounded-xl p-3.5 shadow-2xl max-w-sm">
+              {/* Dynamic 10m RS Raster Color Ramp */}
+              {rasterOverlay !== 'none' && (
+                <div className="mb-3 pb-3 border-b border-white/[0.1]">
+                  {rasterOverlay === 'soc_risk' && (
+                    <div className="space-y-1.5 font-mono text-[11px]">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[#00d4ff] font-bold text-[10px] uppercase tracking-wider">
+                          10m SOC Deficiency Index
+                        </span>
+                        <span className="text-emerald-400 text-[10px] font-semibold">RF Model</span>
+                      </div>
+                      <div className="h-3 w-full rounded-sm bg-gradient-to-r from-[#22c55e] via-[#eab308] to-[#ef4444] border border-white/20 relative">
+                        <div
+                          className="absolute top-0 bottom-0 w-0.5 bg-white shadow-sm"
+                          style={{ left: '58%' }}
+                          title="High-Deficiency Cutoff (0.58)"
+                        />
+                      </div>
+                      <div className="flex justify-between text-[10px] text-[#8ba3cc]">
+                        <span className="text-emerald-400 font-medium">0.0 High SOC</span>
+                        <span className="text-amber-400 font-semibold">0.58 Cutoff</span>
+                        <span className="text-red-400 font-medium">1.0 Severe Def</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {rasterOverlay === 'ndvi' && (
+                    <div className="space-y-1.5 font-mono text-[11px]">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[#00d4ff] font-bold text-[10px] uppercase tracking-wider">
+                          10m NDVI Canopy Index
+                        </span>
+                        <span className="text-emerald-400 text-[10px]">Sentinel-2</span>
+                      </div>
+                      <div className="h-3 w-full rounded-sm bg-gradient-to-r from-[#ffffcc] via-[#78c679] to-[#006837] border border-white/20" />
+                      <div className="flex justify-between text-[10px] text-[#8ba3cc]">
+                        <span>0.0 Bare/Sparse</span>
+                        <span className="text-emerald-400">0.30 Crop Limit</span>
+                        <span className="text-green-300">0.70+ Dense</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {rasterOverlay === 'bsi' && (
+                    <div className="space-y-1.5 font-mono text-[11px]">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[#00d4ff] font-bold text-[10px] uppercase tracking-wider">
+                          10m Bare Soil Index (BSI)
+                        </span>
+                        <span className="text-amber-400 text-[10px]">Topsoil Mineral</span>
+                      </div>
+                      <div className="h-3 w-full rounded-sm bg-gradient-to-r from-[#1f1105] via-[#b45309] to-[#fde047] border border-white/20" />
+                      <div className="flex justify-between text-[10px] text-[#8ba3cc]">
+                        <span>-0.15 Vegetated</span>
+                        <span>0.0 Neutral</span>
+                        <span className="text-amber-300">+0.35 Exposed Soil</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {rasterOverlay === 'confidence' && (
+                    <div className="space-y-1.5 font-mono text-[11px]">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[#00d4ff] font-bold text-[10px] uppercase tracking-wider">
+                          10m Ensemble Confidence
+                        </span>
+                        <span className="text-cyan-400 text-[10px]">30 RF Trees</span>
+                      </div>
+                      <div className="h-3 w-full rounded-sm bg-gradient-to-r from-[#440154] via-[#21918c] to-[#fde725] border border-white/20" />
+                      <div className="flex justify-between text-[10px] text-[#8ba3cc]">
+                        <span>50% Variance</span>
+                        <span className="text-cyan-300">80% Mod</span>
+                        <span className="text-yellow-300">95%+ High</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {rasterOverlay === 'false_color' && (
+                    <div className="space-y-1 font-mono text-[10px]">
+                      <span className="text-[#00d4ff] font-bold uppercase tracking-wider block">
+                        False Color NIR Composite
+                      </span>
+                      <div className="flex items-center gap-2 text-zinc-300">
+                        <span className="text-red-400 font-bold">R: NIR (B8)</span>
+                        <span>&middot;</span>
+                        <span className="text-green-400 font-bold">G: Red (B4)</span>
+                        <span>&middot;</span>
+                        <span className="text-blue-400 font-bold">B: Blue (B2)</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {rasterOverlay === 'zonal_grid' && (
+                    <div className="space-y-1 font-mono text-[10px]">
+                      <span className="text-[#00d4ff] font-bold uppercase tracking-wider block">
+                        5x5 Sector Classification Map
+                      </span>
+                      <p className="text-zinc-400">Mean SOC deficiency aggregated per agricultural zone</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Vector Layer Legend */}
               <p className="text-[10px] font-mono text-[#00d4ff] uppercase tracking-wider mb-2 flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-[#00d4ff] animate-pulse" />
                 {entityLevel === 'sectors' ? '25 Zonal Sector Risk Scale' : 'Statewide District Pedology'}

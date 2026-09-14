@@ -40,6 +40,7 @@ interface SoilMapProps {
   rasterOverlay: RasterOverlayMode;
   rasterOpacity: number;
   selectedSectorId?: string | null;
+  showSectorBoundaries?: boolean;
   onSelectSector?: (sector: SectorProperties | null) => void;
   onSelectDistrict?: (districtName: string) => void;
   onMouseMoveCoords?: (coords: { lat: number; lng: number; zoom: number } | null) => void;
@@ -52,14 +53,15 @@ export const RAIPUR_AOI_BOUNDS: L.LatLngBoundsExpression = [
   [21.300832, 81.801108]
 ];
 
+// Pure borderless transparent RGBA rasters (100% transparent non-bare pixels, zero plot margins/ticks/colorbars)
 const RASTER_URLS: Record<RasterOverlayMode, string | null> = {
   none: null,
-  soc_risk: '/maps/risk_score_map.png',
-  ndvi: '/maps/ndvi_map.png',
-  bsi: '/maps/bsi_map.png',
-  false_color: '/maps/false_color_composite.png',
-  confidence: '/maps/model_confidence_map.png',
-  zonal_grid: '/maps/zonal_risk_map.png'
+  soc_risk: '/maps/clean_soc_risk.png',
+  ndvi: '/maps/clean_ndvi.png',
+  bsi: '/maps/clean_bsi.png',
+  false_color: '/maps/clean_false_color.png',
+  confidence: '/maps/clean_confidence.png',
+  zonal_grid: '/maps/clean_zonal_grid.png'
 };
 
 function sectorColor(risk: number): string {
@@ -74,6 +76,7 @@ export default function SoilMap({
   rasterOverlay,
   rasterOpacity,
   selectedSectorId,
+  showSectorBoundaries = true,
   onSelectSector,
   onSelectDistrict,
   onMouseMoveCoords,
@@ -250,11 +253,21 @@ export default function SoilMap({
           const isSelected = props.gridId === selectedSectorId;
           const color = sectorColor(props.risk);
 
+          if (!showSectorBoundaries && !isSelected) {
+            return {
+              fillColor: color,
+              fillOpacity: 0.0,
+              color: 'transparent',
+              weight: 0,
+              dashArray: ''
+            };
+          }
+
           return {
             fillColor: color,
-            fillOpacity: isSelected ? 0.60 : rasterOverlay !== 'none' ? 0.15 : 0.35,
+            fillOpacity: isSelected ? 0.45 : rasterOverlay !== 'none' ? 0.08 : 0.25,
             color: isSelected ? '#00ffff' : color,
-            weight: isSelected ? 3.5 : 1.5,
+            weight: isSelected ? 3.0 : 1.2,
             dashArray: isSelected ? '' : '3, 3'
           };
         },
@@ -273,15 +286,24 @@ export default function SoilMap({
           lyr.on({
             mouseover: (e: L.LeafletMouseEvent) => {
               const target = e.target;
-              target.setStyle({ fillOpacity: 0.70, weight: 3 });
+              target.setStyle({ fillOpacity: 0.55, weight: 2.5, color: '#00ffff' });
               target.bringToFront();
             },
             mouseout: (e: L.LeafletMouseEvent) => {
               const isSelected = props.gridId === selectedSectorId;
-              e.target.setStyle({
-                fillOpacity: isSelected ? 0.60 : rasterOverlay !== 'none' ? 0.15 : 0.35,
-                weight: isSelected ? 3.5 : 1.5
-              });
+              if (!showSectorBoundaries && !isSelected) {
+                e.target.setStyle({
+                  fillOpacity: 0.0,
+                  weight: 0,
+                  color: 'transparent'
+                });
+              } else {
+                e.target.setStyle({
+                  fillOpacity: isSelected ? 0.45 : rasterOverlay !== 'none' ? 0.08 : 0.25,
+                  weight: isSelected ? 3.0 : 1.2,
+                  color: isSelected ? '#00ffff' : sectorColor(props.risk)
+                });
+              }
             },
             click: () => {
               onSelectSectorRef.current?.(props);
@@ -321,7 +343,7 @@ export default function SoilMap({
 
       geojsonLayerRef.current = layer;
     }
-  }, [entityLevel, sectorsGeojson, districtsGeojson, selectedSectorId, rasterOverlay]);
+  }, [entityLevel, sectorsGeojson, districtsGeojson, selectedSectorId, rasterOverlay, showSectorBoundaries]);
 
   // Center on Raipur AOI when switching to sectors
   useEffect(() => {
