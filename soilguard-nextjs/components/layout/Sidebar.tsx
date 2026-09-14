@@ -5,10 +5,10 @@ import { LayoutDashboard, BarChart3, Map, Leaf, Satellite, Activity } from 'luci
 
 const NAV = [
   { href: '/dashboard', label: 'Overview', icon: LayoutDashboard, count: null },
-  { href: '/sectors', label: 'Sectors', icon: BarChart3, count: 142 },
+  { href: '/sectors', label: 'Districts & Sectors', icon: BarChart3, count: 33 },
   { href: '/maps', label: 'Maps', icon: Map, count: 4 },
   { href: '/interactive-map', label: 'Interactive Map', icon: Map, count: null },
-  { href: '/recommendations', label: 'Recommendations', icon: Leaf, count: 12 },
+  { href: '/recommendations', label: 'Recommendations', icon: Leaf, count: 33 },
 ];
 
 export default function Sidebar() {

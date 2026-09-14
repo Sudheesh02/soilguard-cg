@@ -35,7 +35,7 @@ import {
 const SoilMap = dynamic(() => import('@/components/SoilMap'), { ssr: false });
 
 export default function InteractiveMapPage() {
-  const [entityLevel, setEntityLevel] = useState<EntityLevel>('sectors');
+  const [entityLevel, setEntityLevel] = useState<EntityLevel>('districts');
   const [basemap, setBasemap] = useState<BasemapMode>('google_hybrid');
   const [rasterOverlay, setRasterOverlay] = useState<RasterOverlayMode>('soc_risk');
   const [rasterOpacity, setRasterOpacity] = useState<number>(0.75);
@@ -75,7 +75,7 @@ export default function InteractiveMapPage() {
     <DashboardLayout>
       <Topbar 
         title="Google Earth Level GIS & Remote Sensing Platform" 
-        subtitle="Sub-Meter Satellite Earth Observation & 25 Agricultural Sectors · Raipur-Durg Plain" 
+        subtitle="Full 33-District Statewide GIS & 10m Sentinel-2 Remote Sensing · Chhattisgarh" 
       />
 
       <div className="p-4 lg:p-6 flex flex-col gap-4 min-h-[calc(100vh-80px)]">

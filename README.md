@@ -11,16 +11,16 @@
 | Service | Direct Link | Status |
 | :--- | :--- | :--- |
 | SoilGuard 33 District GIS Hub | [soilguard-nextjs.vercel.app](https://soilguard-nextjs.vercel.app/) | ![Production](https://img.shields.io/badge/Status-Active-brightgreen) |
+| SoilGuard 33 District Interactive Map | [soilguard-nextjs.vercel.app/interactive-map](https://soilguard-nextjs.vercel.app/interactive-map) | ![Production](https://img.shields.io/badge/Status-Active-brightgreen) |
 | CloudGap Inpainting and Analytics API | [Localhost FastAPI Swagger UI](http://localhost:8000/docs) | ![Operational](https://img.shields.io/badge/Status-Operational-brightgreen) |
-| SoilGuard Interactive Operations Portal | [Localhost Next.js Portal](http://localhost:5555) | ![Verified](https://img.shields.io/badge/Status-Verified-brightgreen) |
 
-`text
+```text
 [ Primary Metric: 34.56 dB PSNR | Secondary Metric: 0.9728 SSIM (2.262° SAM) | Latency: < 420 ms | Benchmark SLA: 100% All Weather Coverage Across 33 Districts ]
-`
+```
 
 ## System Architecture
 
-`text
+```text
 soilguard-cg-full-deliverable/
 ├── ISRO_NRSC_Submission/     # Unified execution pipeline and multi district orchestrator
 ├── cloudgap-cg/              # SAR guided spatio temporal DIP neural inpainting engine
@@ -28,30 +28,30 @@ soilguard-cg-full-deliverable/
 ├── soilguard-nextjs/         # Interactive 33 district Leaflet GIS web platform
 ├── tests/                    # 146 automated Earth Observation and adversarial verification tests
 └── run_unified_pipeline.py   # Single command end to end demonstration harness
-`
+```
 
 ## Offline Verification Pipeline
 
 ### 1. Offline Execution Demonstration (Under 30 Seconds, Zero Network Dependency)
-Execute the terminal harness directly via PowerShell or batch:
-`powershell
-.\run_demo.ps1
-`
-Output rasters, CSV priority rankings, and analytical summaries populate in soilguard-cg/outputs/.
+Execute the master orchestrator directly via Python 3.11:
+```powershell
+python run_unified_pipeline.py --mode verify
+```
+Output rasters, CSV priority rankings, and analytical summaries populate in `ISRO_NRSC_Submission/outputs/` and `soilguard-cg/outputs/`.
 
 ### 2. Localhost Visual Analytics Portals
 Launch the interactive 33 district Leaflet operations hub:
-`powershell
+```powershell
 cd soilguard-nextjs
 npm run dev
-`
-Navigate to http://localhost:5555 or http://localhost:3000.
+```
+Navigate to `http://localhost:3000` or the production cloud deployment at `https://soilguard-nextjs.vercel.app`.
 
 ### 3. Automated Earth Observation and Stress Verification Test Suite
 Execute the certified 146 test test suite covering spatial block cross validation, pure NumPy autograd fallbacks, and multi district scaling:
-`powershell
+```powershell
 python -m pytest test_e2e_isro.py test_scientific_hardening.py test_adversarial_stress.py test_adversarial_challenger2.py -v
-`
+```
 
 ## Algorithmic Methodology and Benchmarks
 
@@ -66,9 +66,9 @@ Central India experiences heavy monsoon overcast during the Kharif season (June 
 | CloudGap NumPy Autograd (CPU) | 31.84 | 0.9310 | 3.105° | TinyHourglass architecture (13,460 parameters) |
 
 ### 2. Soil Organic Carbon Regressor and Spatial Block Cross Validation
-Standard random train test splits suffer from spatial autocorrelation leakage (Tobler's First Law of Geography), falsely inflating model accuracy when adjacent pixels leak between splits. SoilGuard CG implements rigorous Spatial Block Cross Validation (SBCV) using 5x5 disjoint geographic blocks (.6\text{km} \times 3.6\text{km}$) to ensure genuine regional generalizability.
+Standard random train test splits suffer from spatial autocorrelation leakage (Tobler's First Law of Geography), falsely inflating model accuracy when adjacent pixels leak between splits. SoilGuard CG implements rigorous Spatial Block Cross Validation (SBCV) using 5x5 disjoint geographic blocks ($3.6\text{ km} \times 3.6\text{ km}$) to ensure genuine regional generalizability.
 
-| Evaluation Strategy | Coefficient of Determination (^2$) | Root Mean Squared Error (RMSE) | Spatial Integrity |
+| Evaluation Strategy | Coefficient of Determination ($R^2$) | Root Mean Squared Error (RMSE) | Spatial Integrity |
 | :--- | :--- | :--- | :--- |
 | Naive Random Split | 0.5307 | 0.1742 | Flawed: Severe geographic proximity leakage |
 | Spatial Block Cross Validation (SBCV) | 0.4076 | 0.1981 | Certified: Zero spatial autocorrelation leakage |
@@ -86,20 +86,21 @@ The platform maps topsoil deficiency across all 33 administrative districts of C
 ## End to End Execution Guide
 
 ### Complete Pipeline Run
-`bash
-python run_unified_pipeline.py --mode full --resolution 10m
-`
+```bash
+python run_unified_pipeline.py --mode pipeline
+```
 
-### Refresh Geospatial Web Hub Assets
-`bash
-node scripts/sync-site-data.mjs
-`
+### Statewide Batch Execution (All 33 Districts)
+```bash
+python soilguard-cg/src/scale_chhattisgarh.py --statewide
+```
 
 ## Project Deliverables
 
 | Deliverable Asset | Path | Description |
 | :--- | :--- | :--- |
 | 10m SOC Deficiency Heatmap | soilguard-cg/outputs/phase3/risk_score_map.png | 10m spatial resolution topsoil deficiency raster |
+| Statewide 33 District Summary | soilguard-cg/outputs/chhattisgarh_statewide/chhattisgarh_statewide_summary.json | Complete 33 district pedological database |
 | Zonal Priority Classification | soilguard-cg/outputs/phase4/zonal_risk_map.png | 25 sector administrative prioritization map |
 | Model Uncertainty Map | soilguard-cg/outputs/phase4/model_confidence_map.png | Ensemble variance and predictive confidence map |
 | Regenerative Prescriptions | soilguard-cg/outputs/phase4/agronomic_recommendations.csv | Sector specific soil amendment specifications |
