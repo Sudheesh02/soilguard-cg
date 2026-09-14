@@ -1,10 +1,17 @@
 'use client';
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import Topbar from '@/components/layout/Topbar';
 import dynamic from 'next/dynamic';
 import { SECTORS } from '@/lib/site-data';
-import type { SectorProperties, BasemapMode, EntityLevel, RasterOverlayMode } from '@/components/SoilMap';
+import type { 
+  SectorProperties, 
+  DistrictProperties, 
+  DistrictColorMode, 
+  BasemapMode, 
+  EntityLevel, 
+  RasterOverlayMode 
+} from '@/components/SoilMap';
 import { 
   Globe,
   Satellite, 
@@ -21,7 +28,8 @@ import {
   Mountain,
   Map,
   Eye,
-  EyeOff
+  EyeOff,
+  Zap
 } from 'lucide-react';
 
 const SoilMap = dynamic(() => import('@/components/SoilMap'), { ssr: false });
@@ -32,14 +40,36 @@ export default function InteractiveMapPage() {
   const [rasterOverlay, setRasterOverlay] = useState<RasterOverlayMode>('soc_risk');
   const [rasterOpacity, setRasterOpacity] = useState<number>(0.75);
   const [showSectorBoundaries, setShowSectorBoundaries] = useState<boolean>(true);
+  const [districtColorMode, setDistrictColorMode] = useState<DistrictColorMode>('soc_risk');
+  
   const [selectedSector, setSelectedSector] = useState<SectorProperties | null>(() => {
     const s = SECTORS[0];
     return s ? (s as unknown as SectorProperties) : null;
   });
-  const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
+  const [selectedDistrict, setSelectedDistrict] = useState<string | null>('Bemetara');
+  const [selectedDistrictData, setSelectedDistrictData] = useState<DistrictProperties | null>(null);
+  const [allDistricts, setAllDistricts] = useState<DistrictProperties[]>([]);
+
   const [coords, setCoords] = useState<{ lat: number; lng: number; zoom: number } | null>(null);
   const [mapboxToken, setMapboxToken] = useState<string>('');
   const [showKeyModal, setShowKeyModal] = useState<boolean>(false);
+
+  // Load all 33 districts from GeoJSON
+  useEffect(() => {
+    fetch('/chhattisgarh-districts.geojson')
+      .then((r) => r.json())
+      .then((data) => {
+        if (data?.features) {
+          const dists: DistrictProperties[] = data.features.map((f: any) => f.properties);
+          setAllDistricts(dists);
+          if (!selectedDistrictData && dists.length > 0) {
+            setSelectedDistrictData(dists[0]);
+            setSelectedDistrict(dists[0].Dist_Name);
+          }
+        }
+      })
+      .catch((e) => console.error('Error loading districts:', e));
+  }, []);
 
   return (
     <DashboardLayout>
@@ -137,44 +167,82 @@ export default function InteractiveMapPage() {
             </button>
           </div>
 
-          {/* 10m Remote Sensing Overlay Switcher */}
-          <div className="flex items-center gap-2 bg-[#06090f] p-1.5 rounded-xl border border-white/[0.06]">
-            <span className="text-[10px] font-mono text-[#4a6890] uppercase tracking-wider px-2">10m RS Raster</span>
-            <select
-              value={rasterOverlay}
-              onChange={(e) => setRasterOverlay(e.target.value as RasterOverlayMode)}
-              className="bg-[#0e1522] border border-white/[0.12] rounded-lg px-2.5 py-1 text-xs text-[#e2ecff] focus:outline-none focus:border-[#00d4ff]"
-            >
-              <option value="none">None (Vector Ground Truth)</option>
-              <option value="soc_risk">10m SOC Deficiency Risk Heatmap</option>
-              <option value="ndvi">10m NDVI Vegetation Index</option>
-              <option value="bsi">10m Bare Soil Index (BSI)</option>
-              <option value="false_color">10m False Color Composite (NIR/R/G)</option>
-              <option value="confidence">10m Prediction Uncertainty Map</option>
-              <option value="zonal_grid">5x5 Sector Classification Map</option>
-            </select>
+          {/* 10m Remote Sensing Overlay Switcher (Sectors Mode) OR Statewide Thematic Mode (Districts Mode) */}
+          {entityLevel === 'sectors' ? (
+            <div className="flex items-center gap-2 bg-[#06090f] p-1.5 rounded-xl border border-white/[0.06]">
+              <span className="text-[10px] font-mono text-[#4a6890] uppercase tracking-wider px-2">10m RS Raster</span>
+              <select
+                value={rasterOverlay}
+                onChange={(e) => setRasterOverlay(e.target.value as RasterOverlayMode)}
+                className="bg-[#0e1522] border border-white/[0.12] rounded-lg px-2.5 py-1 text-xs text-[#e2ecff] focus:outline-none focus:border-[#00d4ff]"
+              >
+                <option value="none">None (Vector Ground Truth)</option>
+                <option value="soc_risk">10m SOC Deficiency Risk Heatmap</option>
+                <option value="ndvi">10m NDVI Vegetation Index</option>
+                <option value="bsi">10m Bare Soil Index (BSI)</option>
+                <option value="false_color">10m False Color Composite (NIR/R/G)</option>
+                <option value="confidence">10m Prediction Uncertainty Map</option>
+                <option value="zonal_grid">5x5 Sector Classification Map</option>
+              </select>
 
-            {rasterOverlay !== 'none' && (
-              <div className="flex items-center gap-2 pl-2 border-l border-white/[0.1]">
-                <Sliders className="w-3.5 h-3.5 text-[#00d4ff]" />
-                <input
-                  type="range"
-                  min="0.1"
-                  max="1.0"
-                  step="0.05"
-                  value={rasterOpacity}
-                  onChange={(e) => setRasterOpacity(parseFloat(e.target.value))}
-                  className="w-16 accent-[#00d4ff] cursor-pointer"
-                  title={`Raster Opacity: ${Math.round(rasterOpacity * 100)}%`}
-                />
-                <span className="text-[11px] font-mono text-[#8ba3cc] w-7">
-                  {Math.round(rasterOpacity * 100)}%
-                </span>
-              </div>
-            )}
-          </div>
+              {rasterOverlay !== 'none' && (
+                <div className="flex items-center gap-2 pl-2 border-l border-white/[0.1]">
+                  <Sliders className="w-3.5 h-3.5 text-[#00d4ff]" />
+                  <input
+                    type="range"
+                    min="0.1"
+                    max="1.0"
+                    step="0.05"
+                    value={rasterOpacity}
+                    onChange={(e) => setRasterOpacity(parseFloat(e.target.value))}
+                    className="w-16 accent-[#00d4ff] cursor-pointer"
+                    title={`Raster Opacity: ${Math.round(rasterOpacity * 100)}%`}
+                  />
+                  <span className="text-[11px] font-mono text-[#8ba3cc] w-7">
+                    {Math.round(rasterOpacity * 100)}%
+                  </span>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="flex items-center gap-1.5 bg-[#06090f] p-1.5 rounded-xl border border-white/[0.06]">
+              <span className="text-[10px] font-mono text-[#4a6890] uppercase tracking-wider px-2">
+                Statewide Layer
+              </span>
+              <button
+                onClick={() => setDistrictColorMode('soc_risk')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                  districtColorMode === 'soc_risk'
+                    ? 'bg-red-500/20 text-red-300 border border-red-500/40 shadow-sm'
+                    : 'text-[#8ba3cc] hover:text-white'
+                }`}
+              >
+                SOC Deficiency Risk
+              </button>
+              <button
+                onClick={() => setDistrictColorMode('vernacular_soil')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                  districtColorMode === 'vernacular_soil'
+                    ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm'
+                    : 'text-[#8ba3cc] hover:text-white'
+                }`}
+              >
+                Indigenous Soils (Kanhar/Matasi)
+              </button>
+              <button
+                onClick={() => setDistrictColorMode('agro_zone')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                  districtColorMode === 'agro_zone'
+                    ? 'bg-sky-500/20 text-sky-300 border border-sky-500/40 shadow-sm'
+                    : 'text-[#8ba3cc] hover:text-white'
+                }`}
+              >
+                Agro-Climatic Zones
+              </button>
+            </div>
+          )}
 
-          {/* Sector Boundary Toggle */}
+          {/* Sector Boundary Toggle (Sectors Mode) */}
           {entityLevel === 'sectors' && (
             <button
               onClick={() => setShowSectorBoundaries((v) => !v)}
@@ -204,8 +272,8 @@ export default function InteractiveMapPage() {
           </button>
         </div>
 
-        {/* Quick Critical Sector Jump Chips */}
-        {entityLevel === 'sectors' && (
+        {/* Quick Jump Chips: Sectors vs Statewide 33 Districts */}
+        {entityLevel === 'sectors' ? (
           <div className="flex items-center gap-2 overflow-x-auto pb-1">
             <span className="text-[11px] font-mono text-[#4a6890] whitespace-nowrap flex items-center gap-1">
               <Flame className="w-3.5 h-3.5 text-red-400" /> Critical High-Deficiency Sectors:
@@ -230,6 +298,31 @@ export default function InteractiveMapPage() {
               );
             })}
           </div>
+        ) : (
+          <div className="flex items-center gap-2 overflow-x-auto pb-1">
+            <span className="text-[11px] font-mono text-[#4a6890] whitespace-nowrap flex items-center gap-1">
+              <Flame className="w-3.5 h-3.5 text-red-400" /> Top Priority High-Deficiency Districts:
+            </span>
+            {allDistricts.slice(0, 8).map((dist) => {
+              const isSelected = selectedDistrict === dist.Dist_Name;
+              return (
+                <button
+                  key={dist.Dist_Name}
+                  onClick={() => {
+                    setSelectedDistrict(dist.Dist_Name);
+                    setSelectedDistrictData(dist);
+                  }}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-mono whitespace-nowrap transition-all border ${
+                    isSelected
+                      ? 'bg-[#00d4ff]/20 text-[#00d4ff] border-[#00d4ff] shadow-md'
+                      : 'bg-red-500/10 text-red-300 border-red-500/20 hover:border-red-500/40'
+                  }`}
+                >
+                  #{dist.rank} {dist.Dist_Name} ({(dist.risk * 100).toFixed(1)}%)
+                </button>
+              );
+            })}
+          </div>
         )}
 
         {/* Main Map View & Inspector Grid */}
@@ -243,9 +336,15 @@ export default function InteractiveMapPage() {
               rasterOverlay={rasterOverlay}
               rasterOpacity={rasterOpacity}
               selectedSectorId={selectedSector?.gridId}
+              selectedDistrictName={selectedDistrict}
+              districtColorMode={districtColorMode}
               showSectorBoundaries={showSectorBoundaries}
               onSelectSector={(sec) => setSelectedSector(sec)}
               onSelectDistrict={(dist) => setSelectedDistrict(dist)}
+              onSelectDistrictData={(data) => {
+                setSelectedDistrictData(data);
+                setSelectedDistrict(data?.Dist_Name || null);
+              }}
               onMouseMoveCoords={(c) => setCoords(c)}
               mapboxToken={mapboxToken}
             />
@@ -378,7 +477,13 @@ export default function InteractiveMapPage() {
               {/* Vector Layer Legend */}
               <p className="text-[10px] font-mono text-[#00d4ff] uppercase tracking-wider mb-2 flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-[#00d4ff] animate-pulse" />
-                {entityLevel === 'sectors' ? '25 Zonal Sector Risk Scale' : 'Statewide District Pedology'}
+                {entityLevel === 'sectors' 
+                  ? '25 Zonal Sector Risk Scale' 
+                  : districtColorMode === 'soc_risk'
+                  ? 'Statewide SOC Deficiency Scale'
+                  : districtColorMode === 'vernacular_soil'
+                  ? 'Indigenous Vernacular Soil Taxonomy'
+                  : 'Agro-Climatic Zones of Chhattisgarh'}
               </p>
               {entityLevel === 'sectors' ? (
                 <div className="space-y-1.5 text-[11px] font-mono">
@@ -401,19 +506,52 @@ export default function InteractiveMapPage() {
                     <span className="text-[#8ba3cc]">&lt; 46% Low Risk</span>
                   </div>
                 </div>
-              ) : (
+              ) : districtColorMode === 'soc_risk' ? (
                 <div className="space-y-1.5 text-[11px] font-mono">
-                  <div className="flex items-center gap-1.5 text-emerald-300">
-                    <span className="w-2.5 h-2.5 rounded-sm bg-[#2A9D8F]" /> Matasi (Alfisols - Yellow Loam)
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="flex items-center gap-1.5 text-red-400">
+                      <span className="w-2.5 h-2.5 rounded-sm bg-[#ef4444]" /> High Deficit (Tier 1)
+                    </span>
+                    <span className="text-[#8ba3cc]">&gt; 50% SOC Deficit</span>
                   </div>
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="flex items-center gap-1.5 text-amber-400">
+                      <span className="w-2.5 h-2.5 rounded-sm bg-[#f59e0b]" /> Moderate (Tier 2)
+                    </span>
+                    <span className="text-[#8ba3cc]">46% to 50%</span>
+                  </div>
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="flex items-center gap-1.5 text-emerald-400">
+                      <span className="w-2.5 h-2.5 rounded-sm bg-[#10b981]" /> Stable / Low Deficit
+                    </span>
+                    <span className="text-[#8ba3cc]">&lt; 46% Low Risk</span>
+                  </div>
+                </div>
+              ) : districtColorMode === 'vernacular_soil' ? (
+                <div className="space-y-1.5 text-[11px] font-mono">
                   <div className="flex items-center gap-1.5 text-amber-300">
-                    <span className="w-2.5 h-2.5 rounded-sm bg-[#E9C46A]" /> Kanhar (Vertisols - Black Clay)
+                    <span className="w-2.5 h-2.5 rounded-sm bg-[#E9C46A]" /> Kanhar (Vertisols - Deep Black Clay)
                   </div>
                   <div className="flex items-center gap-1.5 text-orange-300">
-                    <span className="w-2.5 h-2.5 rounded-sm bg-[#F4A261]" /> Dorsa (Inceptisols - Clay Loam)
+                    <span className="w-2.5 h-2.5 rounded-sm bg-[#F4A261]" /> Dorsa (Inceptisols - Medium Clay Loam)
+                  </div>
+                  <div className="flex items-center gap-1.5 text-emerald-300">
+                    <span className="w-2.5 h-2.5 rounded-sm bg-[#2A9D8F]" /> Matasi (Alfisols - Yellow Sandy Loam)
                   </div>
                   <div className="flex items-center gap-1.5 text-red-300">
-                    <span className="w-2.5 h-2.5 rounded-sm bg-[#E76F51]" /> Bhata (Entisols - Gravelly Red)
+                    <span className="w-2.5 h-2.5 rounded-sm bg-[#E76F51]" /> Bhata (Entisols - Gravelly Red Upland)
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-1.5 text-[11px] font-mono">
+                  <div className="flex items-center gap-1.5 text-sky-300">
+                    <span className="w-2.5 h-2.5 rounded-sm bg-[#38bdf8]" /> Northern Hills Zone (7 Districts)
+                  </div>
+                  <div className="flex items-center gap-1.5 text-emerald-300">
+                    <span className="w-2.5 h-2.5 rounded-sm bg-[#4ade80]" /> Central Chhattisgarh Plains (19 Districts)
+                  </div>
+                  <div className="flex items-center gap-1.5 text-purple-300">
+                    <span className="w-2.5 h-2.5 rounded-sm bg-[#a78bfa]" /> Bastar Plateau / Southern Zone (7 Districts)
                   </div>
                 </div>
               )}
@@ -422,7 +560,7 @@ export default function InteractiveMapPage() {
 
           {/* Sector / District Inspector Panel */}
           <div className="lg:col-span-4 bg-[#0e1522] border border-white/[0.08] rounded-2xl p-5 flex flex-col justify-between shadow-2xl">
-            {selectedSector ? (
+            {entityLevel === 'sectors' && selectedSector ? (
               <div className="space-y-5">
                 
                 {/* Sector Header */}
@@ -509,21 +647,113 @@ export default function InteractiveMapPage() {
                 </div>
 
               </div>
-            ) : selectedDistrict ? (
-              <div className="space-y-4">
-                <span className="font-mono text-xs text-[#00d4ff] bg-[#00d4ff]/10 px-2 py-0.5 rounded border border-[#00d4ff]/30">
-                  Statewide District Mode
-                </span>
-                <h3 className="text-xl font-bold text-white tracking-tight">{selectedDistrict}</h3>
-                <p className="text-xs text-[#8ba3cc]">
-                  Click on <strong>Micro-Sectors (25 Grid)</strong> in the top toolbar to inspect high-resolution agricultural plots and 10m remote sensing rasters across the Raipur-Durg plain.
-                </p>
+            ) : entityLevel === 'districts' && selectedDistrictData ? (
+              <div className="space-y-5">
+                {/* District Header */}
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="font-mono text-xs text-[#00d4ff] bg-[#00d4ff]/10 px-2 py-0.5 rounded border border-[#00d4ff]/30">
+                      District Rank: #{selectedDistrictData.rank} of 33
+                    </span>
+                    <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${
+                      selectedDistrictData.risk >= 0.50
+                        ? 'bg-red-500/15 text-red-400 border-red-500/30'
+                        : selectedDistrictData.risk >= 0.46
+                        ? 'bg-amber-500/15 text-amber-400 border-amber-500/30'
+                        : 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
+                    }`}>
+                      {selectedDistrictData.urgency}
+                    </span>
+                  </div>
+                  <h3 className="text-2xl font-bold text-white tracking-tight">
+                    {selectedDistrictData.Dist_Name}
+                  </h3>
+                  <p className="text-xs text-[#8ba3cc]">
+                    Agro-Climatic Zone: <strong className="text-white">{selectedDistrictData.zone}</strong>
+                  </p>
+                </div>
+
+                {/* District Key Metrics */}
+                <div className="grid grid-cols-2 gap-2.5">
+                  <div className="bg-[#06090f] p-3 rounded-xl border border-white/[0.06]">
+                    <span className="text-[10px] font-mono text-[#4a6890] uppercase block">Mean SOC Deficit</span>
+                    <span className="text-lg font-bold text-[#ef4444]">
+                      {(selectedDistrictData.risk * 100).toFixed(1)}%
+                    </span>
+                  </div>
+                  <div className="bg-[#06090f] p-3 rounded-xl border border-white/[0.06]">
+                    <span className="text-[10px] font-mono text-[#4a6890] uppercase block">High-Risk Area</span>
+                    <span className="text-lg font-bold text-amber-400">
+                      {selectedDistrictData.highRisk?.toLocaleString()} <span className="text-xs text-[#8ba3cc]">ha</span>
+                    </span>
+                  </div>
+                  <div className="bg-[#06090f] p-3 rounded-xl border border-white/[0.06]">
+                    <span className="text-[10px] font-mono text-[#4a6890] uppercase block">Bare Topsoil</span>
+                    <span className="text-lg font-bold text-[#00d4ff]">
+                      {selectedDistrictData.bare?.toLocaleString()} <span className="text-xs text-[#8ba3cc]">ha</span>
+                    </span>
+                  </div>
+                  <div className="bg-[#06090f] p-3 rounded-xl border border-white/[0.06]">
+                    <span className="text-[10px] font-mono text-[#4a6890] uppercase block">Baseline SOC</span>
+                    <span className="text-lg font-bold text-emerald-400">
+                      {selectedDistrictData.soc?.toFixed(1)} <span className="text-xs text-[#8ba3cc]">dg/kg</span>
+                    </span>
+                  </div>
+                </div>
+
+                {/* Indigenous Pedology & Taxonomy */}
+                <div className="bg-[#06090f] p-3.5 rounded-xl border border-white/[0.06] space-y-2">
+                  <div className="flex justify-between text-xs">
+                    <span className="text-[#8ba3cc]">Vernacular Soil Type:</span>
+                    <span className="font-mono text-amber-300 font-bold">
+                      {selectedDistrictData.vernacular_soil} ({selectedDistrictData.soil_order})
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-xs">
+                    <span className="text-[#8ba3cc]">Clay Fraction:</span>
+                    <span className="font-mono text-[#00d4ff] font-bold">{selectedDistrictData.clay?.toFixed(1)} g/kg</span>
+                  </div>
+                  <div className="flex justify-between text-xs">
+                    <span className="text-[#8ba3cc]">Topsoil Reaction:</span>
+                    <span className="font-mono text-emerald-400 font-bold">pH {selectedDistrictData.ph?.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between text-xs">
+                    <span className="text-[#8ba3cc]">Total Geographic Footprint:</span>
+                    <span className="font-mono text-white font-medium">{selectedDistrictData.total?.toLocaleString()} ha</span>
+                  </div>
+                </div>
+
+                {/* Tailored Regenerative Package */}
+                <div className="space-y-2">
+                  <span className="text-xs font-mono text-[#00d4ff] uppercase tracking-wider block flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-[#00d4ff]" /> Localized Regenerative Prescriptions
+                  </span>
+                  <div className="space-y-2">
+                    {selectedDistrictData.recommendations?.map((rec, idx) => (
+                      <div key={idx} className="bg-[#06090f] p-2.5 rounded-lg border border-white/[0.05] flex items-start gap-2 text-xs text-[#e2ecff]">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                        <span>{rec}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Quick Action: Drill down to micro-sectors */}
+                <button
+                  onClick={() => setEntityLevel('sectors')}
+                  className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-blue-600/30 to-cyan-600/30 hover:from-blue-600/40 hover:to-cyan-600/40 border border-blue-500/40 text-white font-medium text-xs flex items-center justify-center gap-2 transition-all shadow-lg"
+                >
+                  <Zap className="w-4 h-4 text-[#00d4ff]" />
+                  <span>Drill Down to 10m Micro-Sectors (Raipur-Durg Plain)</span>
+                </button>
               </div>
             ) : (
               <div className="h-full flex flex-col items-center justify-center text-center p-6 text-[#4a6890]">
                 <MapPin className="w-10 h-10 mb-3 opacity-40 text-[#00d4ff]" />
-                <p className="text-sm font-medium text-white mb-1">Select Any Agricultural Sector</p>
-                <p className="text-xs">Click any sector polygon on the map to inspect high-resolution SOC deficiency, soil metrics, and localized regenerative prescriptions.</p>
+                <p className="text-sm font-medium text-white mb-1">Select Any District or Sector</p>
+                <p className="text-xs">
+                  Click any district polygon on the map or choose from the top chips to inspect statewide pedological parameters and localized regenerative agronomic packages.
+                </p>
               </div>
             )}
 
@@ -532,7 +762,7 @@ export default function InteractiveMapPage() {
               <span>Google Earth + Sentinel-2 L2A</span>
               <span className="text-emerald-400 font-semibold flex items-center gap-1">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                ISRO Pipeline Certified
+                33 Districts &middot; ISRO Certified
               </span>
             </div>
 

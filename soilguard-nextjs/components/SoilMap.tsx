@@ -22,6 +22,35 @@ export interface SectorProperties {
   centroid?: [number, number];
 }
 
+export interface DistrictProperties {
+  Dist_Name: string;
+  name: string;
+  rank: number;
+  zone: string;
+  zone_code: 'hills' | 'plains' | 'plateau';
+  predominant_soil: string;
+  soil_order: string;
+  vernacular_soil: 'Kanhar' | 'Dorsa' | 'Matasi' | 'Bhata';
+  risk: number;
+  max_risk: number;
+  urgency: string;
+  highRisk: number;
+  bare: number;
+  total: number;
+  pct: number;
+  soc: number;
+  clay: number;
+  ph: number;
+  bsi: number;
+  primary_advisory: string;
+  secondary_advisory: string;
+  recommendations: string[];
+  bounds?: [[number, number], [number, number]];
+  centroid?: [number, number];
+}
+
+export type DistrictColorMode = 'soc_risk' | 'vernacular_soil' | 'agro_zone';
+
 export type BasemapMode = 
   | 'google_hybrid' 
   | 'google_satellite' 
@@ -40,9 +69,12 @@ interface SoilMapProps {
   rasterOverlay: RasterOverlayMode;
   rasterOpacity: number;
   selectedSectorId?: string | null;
+  selectedDistrictName?: string | null;
+  districtColorMode?: DistrictColorMode;
   showSectorBoundaries?: boolean;
   onSelectSector?: (sector: SectorProperties | null) => void;
   onSelectDistrict?: (districtName: string) => void;
+  onSelectDistrictData?: (district: DistrictProperties | null) => void;
   onMouseMoveCoords?: (coords: { lat: number; lng: number; zoom: number } | null) => void;
   mapboxToken?: string;
 }
@@ -70,15 +102,42 @@ function sectorColor(risk: number): string {
   return '#10b981'; // STABLE
 }
 
+export function getDistrictColor(props: DistrictProperties, mode: DistrictColorMode = 'soc_risk'): string {
+  if (mode === 'vernacular_soil') {
+    switch (props.vernacular_soil) {
+      case 'Kanhar': return '#E9C46A'; // Vertisols (Black clay)
+      case 'Dorsa': return '#F4A261';  // Inceptisols (Clay loam)
+      case 'Matasi': return '#2A9D8F'; // Alfisols (Yellow sandy loam)
+      case 'Bhata': return '#E76F51';  // Entisols (Gravelly red)
+      default: return '#3b82f6';
+    }
+  }
+  if (mode === 'agro_zone') {
+    switch (props.zone_code) {
+      case 'hills': return '#38bdf8';    // Northern Hills (Sky blue)
+      case 'plains': return '#4ade80';   // Central Plains (Green)
+      case 'plateau': return '#a78bfa';  // Bastar Plateau (Purple)
+      default: return '#10b981';
+    }
+  }
+  // Default: soc_risk
+  if (props.risk >= 0.50) return '#ef4444'; // High Deficit
+  if (props.risk >= 0.46) return '#f59e0b'; // Moderate Deficit
+  return '#10b981'; // Stable / Low Deficit
+}
+
 export default function SoilMap({
   entityLevel,
   basemap,
   rasterOverlay,
   rasterOpacity,
   selectedSectorId,
+  selectedDistrictName,
+  districtColorMode = 'soc_risk',
   showSectorBoundaries = true,
   onSelectSector,
   onSelectDistrict,
+  onSelectDistrictData,
   onMouseMoveCoords,
   mapboxToken
 }: SoilMapProps) {
@@ -96,6 +155,9 @@ export default function SoilMap({
 
   const onSelectDistrictRef = useRef(onSelectDistrict);
   useEffect(() => { onSelectDistrictRef.current = onSelectDistrict; }, [onSelectDistrict]);
+
+  const onSelectDistrictDataRef = useRef(onSelectDistrictData);
+  useEffect(() => { onSelectDistrictDataRef.current = onSelectDistrictData; }, [onSelectDistrictData]);
 
   const onMouseMoveCoordsRef = useRef(onMouseMoveCoords);
   useEffect(() => { onMouseMoveCoordsRef.current = onMouseMoveCoords; }, [onMouseMoveCoords]);
@@ -318,24 +380,57 @@ export default function SoilMap({
       geojsonLayerRef.current = layer;
     } else if (entityLevel === 'districts' && districtsGeojson) {
       const layer = L.geoJSON(districtsGeojson, {
-        style: () => ({
-          fillColor: '#0f172a',
-          fillOpacity: 0.30,
-          color: 'rgba(0, 212, 255, 0.5)',
-          weight: 1.5
-        }),
+        style: (feature) => {
+          const props: DistrictProperties = feature?.properties;
+          const isSelected = props.Dist_Name === selectedDistrictName;
+          const color = getDistrictColor(props, districtColorMode);
+
+          return {
+            fillColor: color,
+            fillOpacity: isSelected ? 0.65 : 0.40,
+            color: isSelected ? '#00ffff' : 'rgba(255, 255, 255, 0.4)',
+            weight: isSelected ? 3.5 : 1.5,
+            dashArray: isSelected ? '' : '2, 2'
+          };
+        },
         onEachFeature: (feature, lyr) => {
-          const distName = feature?.properties?.Dist_Name || 'Unknown District';
-          lyr.bindTooltip(`<strong>${distName}</strong>`, { sticky: true, className: 'leaflet-tooltip-dark' });
+          const props: DistrictProperties = feature?.properties;
+          const distName = props?.Dist_Name || 'Unknown District';
+          const color = getDistrictColor(props, districtColorMode);
+
+          const tooltipContent = `
+            <div style="font-family: monospace; font-size: 11px; padding: 4px; line-height: 1.45;">
+              <strong style="color: #00d4ff;">${distName}</strong> <span style="color: #94a3b8;">(Rank #${props.rank})</span><br/>
+              <span style="color: #e2ecff;">Zone: ${props.zone}</span><br/>
+              <span style="color: #fde047;">Soil: ${props.vernacular_soil} (${props.soil_order})</span><br/>
+              <span style="color: ${props.risk >= 0.50 ? '#ef4444' : props.risk >= 0.46 ? '#f59e0b' : '#10b981'}; font-weight: bold;">
+                SOC Deficiency: ${(props.risk * 100).toFixed(1)}%
+              </span><br/>
+              <span style="color: #cbd5e1;">Bare Soil: ${props.bare?.toLocaleString()} ha | High Deficit: ${props.highRisk?.toLocaleString()} ha</span>
+            </div>
+          `;
+          lyr.bindTooltip(tooltipContent, { sticky: true, className: 'leaflet-tooltip-dark' });
+
           lyr.on({
             mouseover: (e: L.LeafletMouseEvent) => {
-              e.target.setStyle({ fillOpacity: 0.60, weight: 2.5 });
+              const target = e.target;
+              target.setStyle({ fillOpacity: 0.75, weight: 2.8, color: '#00ffff' });
+              target.bringToFront();
             },
             mouseout: (e: L.LeafletMouseEvent) => {
-              e.target.setStyle({ fillOpacity: 0.30, weight: 1.5 });
+              const isSelected = props.Dist_Name === selectedDistrictName;
+              e.target.setStyle({
+                fillOpacity: isSelected ? 0.65 : 0.40,
+                weight: isSelected ? 3.5 : 1.5,
+                color: isSelected ? '#00ffff' : 'rgba(255, 255, 255, 0.4)'
+              });
             },
             click: () => {
               onSelectDistrictRef.current?.(distName);
+              onSelectDistrictDataRef.current?.(props);
+              if (props.bounds) {
+                map.flyToBounds(props.bounds, { padding: [50, 50], maxZoom: 10, duration: 1.0 });
+              }
             }
           });
         }
@@ -343,14 +438,20 @@ export default function SoilMap({
 
       geojsonLayerRef.current = layer;
     }
-  }, [entityLevel, sectorsGeojson, districtsGeojson, selectedSectorId, rasterOverlay, showSectorBoundaries]);
+  }, [entityLevel, sectorsGeojson, districtsGeojson, selectedSectorId, selectedDistrictName, districtColorMode, rasterOverlay, showSectorBoundaries]);
 
-  // Center on Raipur AOI when switching to sectors
+  // Center on Raipur AOI for sectors or entire Chhattisgarh for districts
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
     if (entityLevel === 'sectors') {
       map.flyToBounds(RAIPUR_AOI_BOUNDS, { padding: [30, 30], duration: 1.2 });
+    } else if (entityLevel === 'districts') {
+      const CHHATTISGARH_BOUNDS: L.LatLngBoundsExpression = [
+        [17.75, 80.20],
+        [24.15, 84.40]
+      ];
+      map.flyToBounds(CHHATTISGARH_BOUNDS, { padding: [20, 20], duration: 1.2 });
     }
   }, [entityLevel]);
 
