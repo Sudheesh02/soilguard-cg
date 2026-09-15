@@ -11,8 +11,9 @@
 | Service | Direct Link | Status |
 | :--- | :--- | :--- |
 | SoilGuard 33 District GIS Hub | [soilguard-nextjs.vercel.app](https://soilguard-nextjs.vercel.app/) | ![Production](https://img.shields.io/badge/Status-Active-brightgreen) |
+| SoilGuard Earth Observation Workbench | [soilguard-nextjs.vercel.app/alternative](https://soilguard-nextjs.vercel.app/alternative) | ![Alternative Hub](https://img.shields.io/badge/Alternative-Mission_Control-orange) |
 | SoilGuard 33 District Interactive Map | [soilguard-nextjs.vercel.app/interactive-map](https://soilguard-nextjs.vercel.app/interactive-map) | ![Production](https://img.shields.io/badge/Status-Active-brightgreen) |
-| CloudGap Inpainting and Analytics API | [Localhost FastAPI Swagger UI](http://localhost:8000/docs) | ![Operational](https://img.shields.io/badge/Status-Operational-brightgreen) |
+| CloudGap Inpainting & Analytics REST API | [Localhost FastAPI Swagger UI](http://localhost:8000/docs) | ![Operational](https://img.shields.io/badge/Status-Operational-brightgreen) |
 
 ```text
 [ Primary Metric: 34.56 dB PSNR | Secondary Metric: 0.9728 SSIM (2.262° SAM) | Latency: < 420 ms | Benchmark SLA: 100% All Weather Coverage Across 33 Districts ]
@@ -24,9 +25,10 @@
 soilguard-cg-full-deliverable/
 ├── ISRO_NRSC_Submission/     # Unified execution pipeline and multi district orchestrator
 ├── cloudgap-cg/              # SAR guided spatio temporal DIP neural inpainting engine
-├── soilguard-cg/             # Random Forest SOC regressor with spatial block CV
-├── soilguard-nextjs/         # Interactive 33 district Leaflet GIS web platform
-├── tests/                    # 146 automated Earth Observation and adversarial verification tests
+├── soilguard-cg/             # Random Forest SOC regressor with spatial block CV & FastAPI service
+├── soilguard-nextjs/         # Interactive 33 district Leaflet GIS web platform & alternative workbench
+├── tests/                    # Comprehensive 5-tier Earth Observation, REST API and adversarial tests
+├── run_api.py                # Dedicated FastAPI REST server launcher (http://localhost:8000/docs)
 └── run_unified_pipeline.py   # Single command end to end demonstration harness
 ```
 
@@ -39,13 +41,22 @@ python run_unified_pipeline.py --mode verify
 ```
 Output rasters, CSV priority rankings, and analytical summaries populate in `ISRO_NRSC_Submission/outputs/` and `soilguard-cg/outputs/`.
 
-### 2. Localhost Visual Analytics Portals
-Launch the interactive 33 district Leaflet operations hub:
+### 2. Operational FastAPI REST Server & Interactive Swagger Docs
+Launch the high-throughput REST microservices for multi-spectral predictions, 33-district queries, and dosing calculations:
+```powershell
+python run_api.py
+# or
+python run_unified_pipeline.py --mode api
+```
+Access interactive Swagger UI at `http://localhost:8000/docs` or ReDoc at `http://localhost:8000/redoc`.
+
+### 3. Localhost Visual Analytics Portals & Alternative Workbench
+Launch the interactive 33 district operations hub:
 ```powershell
 cd soilguard-nextjs
 npm run dev
 ```
-Navigate to `http://localhost:3000` or the production cloud deployment at `https://soilguard-nextjs.vercel.app`.
+Navigate to `http://localhost:3000` (Classic Portal) or `http://localhost:3000/alternative` (Earth Observation Workbench).
 
 ### 3. Automated Earth Observation and Stress Verification Test Suite
 Execute the certified 146 test test suite covering spatial block cross validation, pure NumPy autograd fallbacks, and multi district scaling:

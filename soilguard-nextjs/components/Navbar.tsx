@@ -118,13 +118,21 @@ export default function Navbar() {
             ))}
           </div>
 
-          {/* Theme Toggle + Dashboard Link + mobile toggle */}
-          <div className="flex items-center gap-3">
+          {/* Theme Toggle + Workbench + Dashboard Link + mobile toggle */}
+          <div className="flex items-center gap-2.5">
+            <Link
+              href="/alternative"
+              className="px-3 py-1.5 rounded-lg border border-[#E07A5F]/40 bg-[#E07A5F]/15 hover:bg-[#E07A5F]/25 text-[#E07A5F] text-[11px] font-mono font-bold flex items-center gap-1.5 transition-all shadow-sm"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-[#E07A5F]" />
+              <span>Workbench</span>
+            </Link>
+
             <AnimatedThemeToggler />
 
             <Link
               href="/dashboard"
-              className="badge badge-cyan px-3.5 py-1.5 text-[11px] font-bold flex items-center gap-1.5 hover:bg-[rgba(0,212,255,0.2)] transition-all shadow-lg text-[#00d4ff]"
+              className="badge badge-cyan px-3 py-1.5 text-[11px] font-bold flex items-center gap-1.5 hover:bg-[rgba(0,212,255,0.2)] transition-all shadow-lg text-[#00d4ff]"
             >
               <span>Dashboard ↗</span>
             </Link>
@@ -154,6 +162,13 @@ export default function Navbar() {
         }`}
       >
         <div className="flex flex-col gap-2 mt-4">
+          <Link
+            href="/alternative"
+            className="block px-4 py-3 text-[14px] font-mono font-bold rounded-xl text-[#E07A5F] bg-[#E07A5F]/15 border border-[#E07A5F]/30 transition-all flex items-center gap-2"
+          >
+            <span className="w-2 h-2 rounded-full bg-[#E07A5F]" />
+            <span>Earth Observation Workbench</span>
+          </Link>
           {NAV_ITEMS.map((item, i) => (
             <a
               key={item.href}
