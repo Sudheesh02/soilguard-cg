@@ -142,8 +142,8 @@ def run_bhuvan_integration():
 
     tokens = config.get("api_keys", {})
     bbox = config.get("aoi_bbox", [81.60, 21.10, 81.80, 21.30])
-    v_token = tokens.get("village_geocoding", "")
-    lulc_token = tokens.get("lulc_aoi", "")
+    v_token = os.environ.get("BHUVAN_VILLAGE_GEOCODING_KEY") or (tokens.get("village_geocoding", "") if not tokens.get("village_geocoding", "").startswith("YOUR_") else "")
+    lulc_token = os.environ.get("BHUVAN_LULC_AOI_KEY") or (tokens.get("lulc_aoi", "") if not tokens.get("lulc_aoi", "").startswith("YOUR_") else "")
 
     # 2. Check Zonal Priority CSV
     if not os.path.exists(ZONAL_CSV_PATH):
